@@ -1,11 +1,11 @@
-# Out-of-Scope Knowledge Base
+# Out-of-Scope (対象外) ナレッジベース
 
-The `.out-of-scope/` directory in a repo stores persistent records of rejected feature requests. It serves two purposes:
+リポジトリ内の `.out-of-scope/` ディレクトリは、却下された機能リクエストの永続的な記録を保存します。これには2つの目的があります：
 
-1. **Institutional memory** — why a feature was rejected, so the reasoning isn't lost when the issue is closed
-2. **Deduplication** — when a new issue comes in that matches a prior rejection, the skill can surface the previous decision instead of re-litigating it
+1. **組織の記憶 (Institutional Memory)** — なぜその機能が却下されたのかを記録し、イシューがクローズされた後もその理由が失われないようにします。
+2. **重複排除 (Deduplication)** — 過去の却下事例に合致する新しいイシューが届いた場合、同じ議論を繰り返すことなく、過去の決定を提示できるようにします。
 
-## Directory structure
+## ディレクトリ構造
 
 ```
 .out-of-scope/
@@ -14,88 +14,85 @@ The `.out-of-scope/` directory in a repo stores persistent records of rejected f
 └── graphql-api.md
 ```
 
-One file per **concept**, not per issue. Multiple issues requesting the same thing are grouped under one file.
+イシューごとではなく、**コンセプト（概念）**ごとに1つのファイルを作成します。同じ機能要求を行う複数のイシューは、1つのファイルにグループ化されます。
 
-## File format
+## ファイル形式
 
-The file should be written in a relaxed, readable style — more like a short design document than a database entry. Use paragraphs, code samples, and examples to make the reasoning clear and useful to someone encountering it for the first time.
+ファイルはデータベースのエントリというよりも、短い設計書（デザインドキュメント）のように、読みやすい文体で記述する必要があります。初めてその記述を目にする人にとって、理由が明確かつ有益に伝わるように、段落、コードサンプル、具体例を用いてください。
 
 ```markdown
-# Dark Mode
+# Dark Mode (ダークモード)
 
-This project does not support dark mode or user-facing theming.
+このプロジェクトでは、ダークモードやユーザー向けのテーマ設定はサポートしていません。
 
-## Why this is out of scope
+## なぜこれが対象外（out of scope）なのか
 
-The rendering pipeline assumes a single color palette defined in
-`ThemeConfig`. Supporting multiple themes would require:
+レンダリングパイプラインは、`ThemeConfig` で定義された単一のカラーパレットを前提としています。複数のテーマをサポートするには、以下の対応が必要になります：
 
-- A theme context provider wrapping the entire component tree
-- Per-component theme-aware style resolution
-- A persistence layer for user theme preferences
+- コンポーネントツリー全体をラップするテーマコンテキストプロバイダ
+- コンポーネントごとのテーマ対応スタイル解決
+- ユーザーのテーマ設定を保存する永続化レイヤー
 
-This is a significant architectural change that doesn't align with the
-project's focus on content authoring. Theming is a concern for downstream
-consumers who embed or redistribute the output.
+これは非常に大きなアーキテクチャの変更であり、コンテンツ作成に特化するという本プロジェクトの焦点とは一致しません。テーマ設定は、成果物を埋め込んだり再配布したりする下流の利用者の役割となります。
 
 ```ts
-// The current ThemeConfig interface is not designed for runtime switching:
+// 現在の ThemeConfig インターフェースは、実行時の切り替えを想定して設計されていません：
 interface ThemeConfig {
-  colors: ColorPalette; // single palette, resolved at build time
+  colors: ColorPalette; // 単一のパレット。ビルド時に解決されます
   fonts: FontStack;
 }
 ```
 
-## Prior requests
+## 過去のリクエスト
 
-- #42 — "Add dark mode support"
-- #87 — "Night theme for accessibility"
-- #134 — "Dark theme option"
+- #42 — 「ダークモードのサポート追加」
+- #87 — 「アクセシビリティのためのナイトテーマ」
+- #134 — 「ダークテーマのオプション」
 ```
 
-### Naming the file
+### ファイルの命名規則
 
-Use a short, descriptive kebab-case name for the concept: `dark-mode.md`, `plugin-system.md`, `graphql-api.md`. The name should be recognizable enough that someone browsing the directory understands what was rejected without opening the file.
+コンセプトを表す、短く分かりやすいケバブケース（kebab-case）の名前を使用します：`dark-mode.md`、`plugin-system.md`、`graphql-api.md`。名前を見るだけで、ファイルを開くことなく何が却下されたのか理解できるような名前にしてください。
 
-### Writing the reason
+### 却下理由の書き方
 
-The reason should be substantive — not "we don't want this" but why. Good reasons reference:
+理由は具体的かつ本質的である必要があります。「やりたくないから」ではなく、なぜかを説明します。良い理由は以下を参照します：
 
-- Project scope or philosophy ("This project focuses on X; theming is a downstream concern")
-- Technical constraints ("Supporting this would require Y, which conflicts with our Z architecture")
-- Strategic decisions ("We chose to use A instead of B because...")
+- プロジェクトのスコープまたは哲学（「このプロジェクトはXに焦点を当てています。テーマ変更は下流側の役割です」）
+- 技術的な制約（「これをサポートするにはYが必要になり、これはZというアーキテクチャと競合します」）
+- 戦略的決定（「〜という特定の理由から、BではなくAを使用することを選択しました」）
 
-The reason should be durable. Avoid referencing temporary circumstances ("we're too busy right now") — those aren't real rejections, they're deferrals.
+理由は永続的（耐久性があるもの）である必要があります。一時的な状況（「現在忙しいため」）を参照することは避けてください。これらは本当の却下ではなく、延期（先送り）です。
 
-## When to check `.out-of-scope/`
+## `.out-of-scope/` を確認するタイミング
 
-During triage (Step 1: Gather context), read all files in `.out-of-scope/`. When evaluating a new issue:
+トリアージ中（ステップ1：コンテキストの収集）に、`.out-of-scope/` 内のすべてのファイルを読み込みます。新しいイシューを評価する際：
 
-- Check if the request matches an existing out-of-scope concept
-- Matching is by concept similarity, not keyword — "night theme" matches `dark-mode.md`
-- If there's a match, surface it to the maintainer: "This is similar to `.out-of-scope/dark-mode.md` — we rejected this before because [reason]. Do you still feel the same way?"
+- その要求が既存の対象外コンセプトに合致するか確認します。
+- 合致するかどうかはキーワードの一致ではなく、コンセプトの類似性で判断します（例：「ナイトテーマ」は `dark-mode.md` に合致）。
+- 合致した場合は、メンテナに提示します：「これは `.out-of-scope/dark-mode.md` と類似しています。以前に [理由] という理由で却下していますが、現在も同じお考えでしょうか？」
 
-The maintainer may:
+メンテナは以下を選択します：
 
-- **Confirm** — the new issue gets added to the existing file's "Prior requests" list, then closed
-- **Reconsider** — the out-of-scope file gets deleted or updated, and the issue proceeds through normal triage
-- **Disagree** — the issues are related but distinct, proceed with normal triage
+- **確認（Confirm）** — 新しいイシューは既存ファイルの「過去のリクエスト」リストに追加され、クローズされます。
+- **再検討（Reconsider）** — 対象外ファイルが削除または更新され、イシューは通常のトリアージプロセスに進みます。
+- **不一致（Disagree）** — 関連はあるが別個のものであると判断し、通常のトリアージを進めます。
 
-## When to write to `.out-of-scope/`
+## `.out-of-scope/` に書き込むタイミング
 
-Only when an **enhancement** (not a bug) is rejected as `wontfix`. The flow:
+**機能改善（enhancement）**（バグではない）が `wontfix` として却下された場合にのみ書き込みます。流れは以下の通りです：
 
-1. Maintainer decides a feature request is out of scope
-2. Check if a matching `.out-of-scope/` file already exists
-3. If yes: append the new issue to the "Prior requests" list
-4. If no: create a new file with the concept name, decision, reason, and first prior request
-5. Post a comment on the issue explaining the decision and mentioning the `.out-of-scope/` file
-6. Close the issue with the `wontfix` label
+1. メンテナが、ある機能リクエストがスコープ外であると決定します。
+2. 合致する `.out-of-scope/` ファイルがすでに存在するか確認します。
+3. 存在する場合：新しいイシューを「過去のリクエスト」リストの末尾に追加します。
+4. 存在しない場合：コンセプト名、決定内容、理由、および最初の過去リクエストを記載した新しいファイルを作成します。
+5. イシューに決定内容を説明し、`.out-of-scope/` ファイルへの言及を含めたコメントを投稿します。
+6. `wontfix` ラベルを適用してイシューをクローズします。
 
-## Updating or removing out-of-scope files
+## 対象外ファイルの更新または削除
 
-If the maintainer changes their mind about a previously rejected concept:
+以前に却下されたコンセプトについてメンテナが考えを変えた場合：
 
-- Delete the `.out-of-scope/` file
-- The skill does not need to reopen old issues — they're historical records
-- The new issue that triggered the reconsideration proceeds through normal triage
+- `.out-of-scope/` ファイルを削除します。
+- 過去にクローズされた古いイシューを再オープンする必要はありません。それらは歴史的な記録です。
+- 再検討のきっかけとなった新しいイシューは、通常のトリアージを進めます。

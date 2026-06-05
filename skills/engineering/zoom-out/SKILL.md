@@ -1,7 +1,9 @@
 ---
 name: zoom-out
-description: Tell the agent to zoom out and give broader context or a higher-level perspective. Use when you're unfamiliar with a section of code or need to understand how it fits into the bigger picture.
+description: エージェントに対してズームアウトし、より広いコンテキストや高レベルな視点（抽象度を上げた全体像）を提供するよう指示します。コードの特定のセクションに慣れていない場合や、それが全体の中でどのように適合しているかを理解したい場合に使用します。
 disable-model-invocation: true
 ---
 
-I don't know this area of code well. Go up a layer of abstraction. Give me a map of all the relevant modules and callers, using the project's domain glossary vocabulary.
+私はこのコード領域についてよく知りません。抽象度のレイヤーを1つ上げてください。プロジェクトのドメイン用語集（CONTEXT.md）の語彙を使用して、関連するすべてのモジュールと呼び出し元のマップ（全体像）を提示してください。
+
+**重要**: 提示するマップや解説など、ユーザーとのすべての対話は日本語で行ってください。

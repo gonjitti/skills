@@ -1,22 +1,22 @@
-# Issue tracker: GitHub
+# イシュートラッカー: GitHub
 
-Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
+このリポジトリのイシューおよびPRDは、GitHub Issuesで管理されます。すべての操作で `gh` CLIを使用します。
 
-## Conventions
+## 操作規則（コマンド例）
 
-- **Create an issue**: `gh issue create --title "..." --body "..."`. Use a heredoc for multi-line bodies.
-- **Read an issue**: `gh issue view <number> --comments`, filtering comments by `jq` and also fetching labels.
-- **List issues**: `gh issue list --state open --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'` with appropriate `--label` and `--state` filters.
-- **Comment on an issue**: `gh issue comment <number> --body "..."`
-- **Apply / remove labels**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
-- **Close**: `gh issue close <number> --comment "..."`
+- **イシューの作成**: `gh issue create --title "..." --body "..."`。複数行の本文にはヒアドキュメントを使用します。
+- **イシューの読み取り**: `gh issue view <番号> --comments`。`jq` でコメントをフィルタリングし、ラベルも取得します。
+- **イシューのリスト表示**: `gh issue list --state open --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'`。必要に応じて `--label` や `--state` フィルターを適用します。
+- **イシューへのコメント**: `gh issue comment <番号> --body "..."`
+- **ラベルの付与 / 削除**: `gh issue edit <番号> --add-label "..."` / `--remove-label "..."`
+- **イシューのクローズ**: `gh issue close <番号> --comment "..."`
 
-Infer the repo from `git remote -v` — `gh` does this automatically when run inside a clone.
+`git remote -v` からリポジトリ情報を推測します。`gh` はクローンされたリポジトリ内で実行されると自動的にこれを判別します。
 
-## When a skill says "publish to the issue tracker"
+## スキルが「イシュートラッカーに公開する」と指示した場合
 
-Create a GitHub issue.
+GitHubのイシューを作成してください。
 
-## When a skill says "fetch the relevant ticket"
+## スキルが「関連チケットを取得する」と指示した場合
 
-Run `gh issue view <number> --comments`.
+`gh issue view <番号> --comments` を実行してください。

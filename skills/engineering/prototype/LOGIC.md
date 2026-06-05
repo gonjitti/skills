@@ -1,79 +1,79 @@
-# Logic Prototype
+# Logic Prototype (ロジック・プロトタイプ)
 
-A tiny interactive terminal app that lets the user drive a state model by hand. Use this when the question is about **business logic, state transitions, or data shape** — the kind of thing that looks reasonable on paper but only feels wrong once you push it through real cases.
+ユーザーが手動で状態モデルを操作できる、小さなインタラクティブ・ターミナルアプリです。解決したい「問い」が **ビジネスロジック、状態遷移、またはデータの構造** に関するものである場合に使用します。これらは机上では問題なさそうに見えても、実際のユースケースに当てはめて動かしてみることで初めて違和感（問題点）に気づく類のものです。
 
-## When this is the right shape
+## この形状が適しているケース
 
-- "I'm not sure if this state machine handles the edge case where X then Y."
-- "Does this data model actually let me represent the case where..."
-- "I want to feel out what the API should look like before writing it."
-- Anything where the user wants to **press buttons and watch state change**.
+- 「この状態マシンが、Xの後にYが発生するというエッジケースを正しく処理できるか確信がない。」
+- 「このデータモデルは、〜が発生するケースを正しく表現できるだろうか？」
+- 「APIを実際に作成する前に、その使用感を確かめてみたい。」
+- その他、ユーザーが **「ボタンを押して、状態が変化する様子を観察したい」** と考えているすべてのケース。
 
-If the question is "what should this look like" — wrong branch. Use [UI.md](UI.md).
+見た目（UIデザイン）に関する問いである場合は、このブランチは不適切です。[UI.md](UI.md) に進んでください。
 
-## Process
+## プロセス
 
-### 1. State the question
+### 1. 問い（質問）を定義する
 
-Before writing code, write down what state model and what question you're prototyping. One paragraph, in the prototype's README or a comment at the top of the file. A logic prototype that answers the wrong question is pure waste — make the question explicit so it can be checked later, whether the user is watching now or returning to it AFK.
+コードを書く前に、どのような状態モデルを検証し、どのような「問い」を解決しようとしているかを記録します。プロトタイプのREADME、またはファイルの先頭のコメントに1段落で記述してください。間違った問いに答えるロジックプロトタイプは純粋な無駄です。ユーザーがその場で見ていても、不在（AFK）の後に戻ってきたときでも、後で結論を確認できるように問いを明文化しておきます。
 
-### 2. Pick the language
+### 2. 言語を選択する
 
-Use whatever the host project uses. If the project has no obvious runtime (e.g. a docs repo), ask.
+ホストプロジェクトと同じプログラミング言語を使用します。明確なランタイムがないプロジェクト（例: ドキュメントリポジトリなど）の場合は、ユーザーに確認してください。
 
-Match the project's existing conventions for tooling — don't add a new package manager or runtime just for the prototype.
+プロジェクトの既存のパッケージマネージャーやツールの規則に従い、プロトタイプのためだけに新しいツールやパッケージマネージャーを導入しないでください。
 
-### 3. Isolate the logic in a portable module
+### 3. ポータブルなモジュールにロジックを分離する
 
-Put the actual logic — the bit that's answering the question — behind a small, pure interface that could be lifted out and dropped into the real codebase later. The TUI around it is throwaway; the logic module shouldn't be.
+検証対象となる実際のロジックを、後で本番のコードベースにそのまま移植できるような、小さく純粋な（I/Oを持たない）インターフェースの背後にカプセル化します。周囲を囲むTUI（ターミナルUI）は使い捨てですが、ロジックモジュールは使い捨てではありません。
 
-The right shape depends on the question:
+問いの内容に応じて、適切な形状を選択してください：
 
-- **A pure reducer** — `(state, action) => state`. Good when actions are discrete events and state is a single value.
-- **A state machine** — explicit states and transitions. Good when "which actions are even legal right now" is part of the question.
-- **A small set of pure functions** over a plain data type. Good when there's no implicit current state — just transformations.
-- **A class or module with a clear method surface** when the logic genuinely owns ongoing internal state.
+- **純粋なレデューサー (Pure Reducer)** — `(state, action) => state`。アクションが離散的なイベントであり、状態が単一の値である場合に適しています。
+- **状態マシン (State Machine)** — 明示的な状態（States）と遷移（Transitions）。「現在どのアクションが実行可能であるか」自体が検証項目の一部である場合に適しています。
+- **プレーンなデータ型に対する純粋関数のセット**。暗黙的な現在状態がなく、純粋な変換処理のみを行う場合に適しています。
+- **明確なメソッドインターフェースを持つクラスまたはモジュール**。ロジックが進行中の内部状態を所有する必要がある場合に適しています。
 
-Pick whichever shape best fits the question being asked, *not* whichever is easiest to wire to a TUI. Keep it pure: no I/O, no terminal code, no `console.log` for control flow. The TUI imports it and calls into it; nothing flows the other direction.
+TUIと結合しやすい形状ではなく、問いに最も適合する形状を選択してください。I/O（画面入出力）、ターミナル制御コード、制御フローのための `console.log` などを含めず、純粋（Pure）な状態を維持してください。TUI側がそれをインポートして呼び出すようにし、逆方向の依存関係を作らないでください。
 
-This is what makes the prototype useful past its own lifetime. When the question's been answered, the validated reducer / machine / function set can be lifted into the real module — the TUI shell gets deleted.
+これにより、プロトタイプの寿命が尽きた後も価値が残ります。問いが解決されたら、検証済みのレデューサー/マシン/関数セットをそのまま本番モジュールに移植し、TUIのシェルコードのみを削除します。
 
-### 4. Build the smallest TUI that exposes the state
+### 4. 状態を表示する最小限のTUIを構築する
 
-Build it as a **lightweight TUI** — on every tick, clear the screen (`console.clear()` / `print("\033[2J\033[H")` / equivalent) and re-render the whole frame. The user should always see one stable view, not an ever-growing scrollback.
+**軽量なTUI** として構築します。毎フレーム画面をクリアし（`console.clear()`、`print("\033[2J\033[H")` などを使用）、フレーム全体を再描画します。ユーザーには、過去のログがダラダラとスクロール表示されるのではなく、常に1つの安定したビューが表示されるようにします。
 
-Each frame has two parts, in this order:
+各フレームは、上から順に以下の2つのパートで構成されます：
 
-1. **Current state**, pretty-printed and diff-friendly (one field per line, or formatted JSON). Use **bold** for field names or section headers and **dim** for less important context (timestamps, IDs, derived values). Native ANSI escape codes are fine — `\x1b[1m` bold, `\x1b[2m` dim, `\x1b[0m` reset. No need to pull in a styling library unless one is already in the project.
-2. **Keyboard shortcuts**, listed at the bottom: `[a] add user  [d] delete user  [t] tick clock  [q] quit`. Bold the key, dim the description, or vice-versa — whatever reads cleanly.
+1. **現在の状態 (Current State)**: 見やすく、差分（diff）を確認しやすい形式で出力します（1行に1フィールド、またはフォーマットされたJSON）。フィールド名やセクションヘッダーには **ボールド（太字）** を使用し、重要度の低いコンテキスト（タイムスタンプ、ID、派生値など）には **薄字（dim）** を使用します。ネイティブのANSIエスケープコード（`\x1b[1m` 太字、`\x1b[2m` 薄字、`\x1b[0m` リセット）を使用して構いません。プロジェクトにすでに導入されていない限り、スタイリング用の外部ライブラリを新規に導入する必要はありません。
+2. **キーボードショートカット**: 画面の最下部に表示します：`[a] ユーザー追加  [d] ユーザー削除  [t] 時間を進める  [q] 終了`。キー部分を太字、説明を薄字にするなど、見やすく整理します。
 
-Behaviour:
+動作仕様：
 
-1. **Initialise state** — a single in-memory object/struct. Render the first frame on start.
-2. **Read one keystroke (or one line)** at a time, dispatch to a handler that mutates state.
-3. **Re-render** the full frame after every action — don't append, replace.
-4. **Loop until quit.**
+1. **状態の初期化** — インメモリの単一のオブジェクト/構造体として定義します。起動時に最初のフレームを描画します。
+2. **キー入力（または1行入力）を1つずつ読み取り**、状態を変更（mutate）するハンドラーへディカウント（dispatch）します。
+3. アクションの実行後、**フレーム全体を再描画** します（追記するのではなく、上書き描画します）。
+4. **終了キーが押されるまでループ** します。
 
-The whole frame should fit on one screen.
+フレーム全体が、ターミナルの1画面に収まるようにしてください。
 
-### 5. Make it runnable in one command
+### 5. ワンコマンドで実行できるようにする
 
-Add a script to the project's existing task runner (`package.json` scripts, `Makefile`, `justfile`, `pyproject.toml`). The user should run `pnpm run <prototype-name>` or equivalent — never need to remember a path.
+プロジェクトの既存のタスクランナー（`package.json` の scripts、`Makefile`、`justfile`、`pyproject.toml` など）にスクリプトを追加します。ユーザーは `pnpm run <プロトタイプ名>` などを実行するだけでよく、ファイルパスを覚える必要がないようにします。
 
-If the host project has no task runner, just put the command at the top of the prototype's README.
+プロジェクトにタスクランナーが存在しない場合は、プロトタイプ用の簡易READMEの最上部に起動コマンドを記述しておきます。
 
-### 6. Hand it over
+### 6. ユーザーへの引き渡し
 
-Give the user the run command. They'll drive it themselves; the interesting moments are when they say "wait, that shouldn't be possible" or "huh, I assumed X would be different" — those are the bugs in the _idea_, which is the whole point. If they want new actions added, add them. Prototypes evolve.
+起動コマンドをユーザーに伝えます。ユーザーは自分でプロトタイプを操作します。重要なフィードバックが得られるのは、ユーザーが「あれ、この操作ができるのはおかしいな」「Xは別の挙動をすると思っていた」と言った瞬間です。これらこそが **「アイデアにおけるバグ（認識の不一致）」** であり、プロトタイプを作成する本来の目的です。新しいアクションの追加要望があれば、それに応じて追加します。プロトタイプは進化するものです。
 
-### 7. Capture the answer
+### 7. 答え（結論）の記録
 
-When the prototype has done its job, the answer to the question is the only thing worth keeping. If the user is around, ask what it taught them. If not, leave a `NOTES.md` next to the prototype so the answer can be filled in (or filled in by you, if you've watched the session) before the prototype gets deleted.
+プロトタイプが役割を終えたら、得られた結論のみを記録してコードを整理します。ユーザーがその場にいる場合は、何が分かったかを確認して記録します。不在の場合は、プロトタイプを削除する前に結論を記入できるように、プロトタイプの隣に `NOTES.md` を作成しておきます。
 
-## Anti-patterns
+## アンチパターン
 
-- **Don't add tests.** A prototype that needs tests is no longer a prototype.
-- **Don't wire it to the real database.** Use an in-memory store unless the question is specifically about persistence.
-- **Don't generalise.** No "what if we wanted to support X later." The prototype answers one question.
-- **Don't blur the logic and the TUI together.** If the reducer / state machine references `console.log`, prompts, or terminal escape codes, it's no longer portable. Keep the TUI as a thin shell over a pure module.
-- **Don't ship the TUI shell into production.** The shell is optimised for being driven by hand from a terminal. The logic module behind it is the bit worth keeping.
+- **テストコードを書かないこと。** テストが必要になるレベルのものは、もはやプロトタイプではありません。
+- **本物のデータベースに接続しないこと。** 永続化自体が検証したい問いでない限り、インメモリのデータストアを使用してください。
+- **一般化（共通化）しようとしないこと。** 「将来的にXをサポートしたくなるかも」といった考慮は不要です。プロトタイプは「1つの問い」にのみ答えるものです。
+- **ロジックとTUIのコードを混在させないこと。** レデューサーや状態マシンが `console.log` やプロンプト、ターミナルエスケープコードを参照している場合、それは他の場所に移植できなくなります。TUIは純粋なロジックモジュールを呼び出すだけの薄いシェルに留めてください。
+- **TUIのコードを本番環境へマージしないこと。** TUIシェルはターミナルから手動で操作するために最適化されたものです。残すべき価値があるのは、その背後にあるロジックモジュールのみです。

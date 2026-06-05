@@ -1,83 +1,69 @@
 ---
 name: to-issues
-description: Break a plan, spec, or PRD into independently-grabbable issues on the project issue tracker using tracer-bullet vertical slices. Use when user wants to convert a plan into issues, create implementation tickets, or break down work into issues.
+description: 縦型スライス（vertical slices）アプローチを使用して、あらゆる計画、仕様、またはPRDを、個別に着手可能なGitHubイシューに分解します。ユーザーがイシューを作成したい場合、計画をタスク/チケットに分解したい場合、またはイシュートラッカーにタスクを登録したい場合に使用します。
 ---
 
-# To Issues
+# To Issues (イシューへの分解)
 
-Break a plan into independently-grabbable issues using vertical slices (tracer bullets).
+計画、仕様、またはPRDを、縦型スライスを使用して、**個別に着手可能な（independently-grabbable）イシュー**に分解します。
 
-The issue tracker and triage label vocabulary should have been provided to you — run `/setup-matt-pocock-skills` if not.
+このワークフロー中に投稿されるすべてのコメントまたはイシューは、必ずこの免責事項から開始する必要があります：
 
-## Process
+```
+> *これはAIによって生成されました。*
+```
 
-### 1. Gather context
+## 原則
 
-Work from whatever is already in the conversation context. If the user passes an issue reference (issue number, URL, or path) as an argument, fetch it from the issue tracker and read its full body and comments.
+### レイヤー（水平層）ではなく、垂直スライス（縦切り）
 
-### 2. Explore the codebase (optional)
+作業を、ユーザーにとっての価値を提供する「縦型スライス（垂直スライス）」に分解します。水平方向のレイヤー（「DBスキーマの作成」、「APIエンドポイントの実装」、「UIコンポーネントの構築」）ごとにイシューを作成しては **いけません**。これらは単独では価値を持たず、最終的な統合の段階で問題を引き起こす原因になります。
 
-If you have not already explored the codebase, do so to understand the current state of the code. Issue titles and descriptions should use the project's domain glossary vocabulary, and respect ADRs in the area you're touching.
+- **良い例:** 「ユーザーが商品詳細ページからカートに商品を追加できること」（スキーマ、API、UIのすべてを1つの垂直スライスに含めます）
+- **悪い例:** 「カートのAPIエンドポイントを作成する」
 
-### 3. Draft vertical slices
+### 個別着手可能であること
 
-Break the plan into **tracer bullet** issues. Each issue is a thin vertical slice that cuts through ALL integration layers end-to-end, NOT a horizontal slice of one layer.
+非同期（AFK）で稼働するエージェントが、人間の追加の解説なしに計画内の任意のイシューに着手できる必要があります。これは以下を意味します：
 
-Slices may be 'HITL' or 'AFK'. HITL slices require human interaction, such as an architectural decision or a design review. AFK slices can be implemented and merged without human interaction. Prefer AFK over HITL where possible.
+1. **明確な前提条件。** イシューBがイシューAに依存している場合は、イシューBの説明文にそれを明記します。
+2. **明示的なコンテキスト。** エージェントが過去のイシューをすべて読んでいると想定しないでください。必要なコンテキストを本文に記載するか、PRDを参照させてください。
+3. **作業中における競合状態の回避。** 2つのイシューが同じファイルを変更し、Gitのコンフリクトを引き起こす可能性が高い場合、それらは並行して作業できません。順序を設定してシーケンシャルにするか、1つのイシューに統合してください。
 
-<vertical-slice-rules>
-- Each slice delivers a narrow but COMPLETE path through every layer (schema, API, UI, tests)
-- A completed slice is demoable or verifiable on its own
-- Prefer many thin slices over few thick ones
-</vertical-slice-rules>
+## プロセス
 
-### 4. Quiz the user
+### 1. PRDの読み込みと探索
 
-Present the proposed breakdown as a numbered list. For each slice, show:
+PRD、仕様書、または計画書を読みます。プロジェクトのドメイン用語集（`CONTEXT.md`）を使用してコードベースを探索し、関連するモジュールの明確なメンタルモデルを構築し、関連領域のADRを確認します。
 
-- **Title**: short descriptive name
-- **Type**: HITL / AFK
-- **Blocked by**: which other slices (if any) must complete first
-- **User stories covered**: which user stories this addresses (if the source material has them)
+`docs/agents/` にあるファイルを確認して、現在のイシュートラッカーの設定を確認します（存在しない場合は `/setup-matt-pocock-skills` を実行します）。以下の情報を把握する必要があります：
+- 出力先が GitHub、GitLab、ローカルの Markdown ファイル、またはその他のワークフローのどれであるか
+- リポジトリに設定されているトリアージ用ラベルの定義
 
-Ask the user:
+### 2. 分解案の提示
 
-- Does the granularity feel right? (too coarse / too fine)
-- Are the dependency relationships correct?
-- Should any slices be merged or split further?
-- Are the correct slices marked as HITL and AFK?
+イシューの分解案を提案します。イシューごとに以下を提示してください：
 
-Iterate until the user approves the breakdown.
+- **タイトル** — ドメイン用語集を使用した、簡潔でアクション指向のもの（例: 「カートのチェックアウト処理にバリデーションを追加する」）
+- **前提条件** — 先に完了している必要があるイシュー番号やタイトル
+- **垂直スライスの根拠** — なぜこれがレイヤー（水平層）ではなく、ユーザー価値に直結する垂直スライスなのかの説明
+- **見積もり難易度** — `Low`（低）、`Medium`（中）、`High`（高）
 
-### 5. Publish the issues to the issue tracker
+トラッカーへ登録する前に、必ずユーザーの承認を得てください。
 
-For each approved slice, publish a new issue to the issue tracker. Use the issue body template below. These issues are considered ready for AFK agents, so publish them with the correct triage label unless instructed otherwise.
+### 3. 公開（登録）
 
-Publish issues in dependency order (blockers first) so you can reference real issue identifiers in the "Blocked by" field.
+ユーザーが承認したら、設定されたイシュートラッカーにイシューを登録します。
 
-<issue-template>
-## Parent
+GitHub または GitLab を使用する場合：
+- CLI（`gh` または `glab`）を使用してイシューを作成します。
+- 各イシューに `needs-triage` ラベル（or `docs/agents/triage-labels.md` で対応する文字列）を適用します。
+- イシューの説明文の中で、依存関係をリンクします（例: 「#42 に依存」）。
 
-A reference to the parent issue on the issue tracker (if the source was an existing issue, otherwise omit this section).
+ローカルの Markdown を使用する場合：
+- `.scratch/<機能名-スラグ>/issues/` の下にファイルを作成します。
+- フロントマターに `Status: needs-triage` を設定します。
 
-## What to build
+登録が完了したら、作成されたイシュー番号またはパスをユーザーに伝えます。
 
-A concise description of this vertical slice. Describe the end-to-end behavior, not layer-by-layer implementation.
-
-Avoid specific file paths or code snippets — they go stale fast. Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it here and note briefly that it came from a prototype. Trim to the decision-rich parts — not a working demo, just the important bits.
-
-## Acceptance criteria
-
-- [ ] Criterion 1
-- [ ] Criterion 2
-- [ ] Criterion 3
-
-## Blocked by
-
-- A reference to the blocking ticket (if any)
-
-Or "None - can start immediately" if no blockers.
-
-</issue-template>
-
-Do NOT close or modify any parent issue.
+**重要**: 作成するすべてのイシュー本文、タイトル、およびユーザーとの対話は日本語で行ってください。

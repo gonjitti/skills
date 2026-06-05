@@ -1,60 +1,60 @@
-# CONTEXT.md Format
+# CONTEXT.md 形式
 
-## Structure
-
-```md
-# {Context Name}
-
-{One or two sentence description of what this context is and why it exists.}
-
-## Language
-
-**Order**:
-{A one or two sentence description of the term}
-_Avoid_: Purchase, transaction
-
-**Invoice**:
-A request for payment sent to a customer after delivery.
-_Avoid_: Bill, payment request
-
-**Customer**:
-A person or organization that places orders.
-_Avoid_: Client, buyer, account
-```
-
-## Rules
-
-- **Be opinionated.** When multiple words exist for the same concept, pick the best one and list the others under `_Avoid_`.
-- **Keep definitions tight.** One or two sentences max. Define what it IS, not what it does.
-- **Only include terms specific to this project's context.** General programming concepts (timeouts, error types, utility patterns) don't belong even if the project uses them extensively. Before adding a term, ask: is this a concept unique to this context, or a general programming concept? Only the former belongs.
-- **Group terms under subheadings** when natural clusters emerge. If all terms belong to a single cohesive area, a flat list is fine.
-
-## Single vs multi-context repos
-
-**Single context (most repos):** One `CONTEXT.md` at the repo root.
-
-**Multiple contexts:** A `CONTEXT-MAP.md` at the repo root lists the contexts, where they live, and how they relate to each other:
+## 構造
 
 ```md
-# Context Map
+# {コンテキスト名}
 
-## Contexts
+{このコンテキストが何であるか、なぜ存在するのかを説明する1〜2文の説明文。}
 
-- [Ordering](./src/ordering/CONTEXT.md) — receives and tracks customer orders
-- [Billing](./src/billing/CONTEXT.md) — generates invoices and processes payments
-- [Fulfillment](./src/fulfillment/CONTEXT.md) — manages warehouse picking and shipping
+## 用語定義（Language）
 
-## Relationships
+**Order（注文）**:
+{この用語に関する1〜2文の説明文}
+_避けるべき用語_: 購入（Purchase）、取引（transaction）
 
-- **Ordering → Fulfillment**: Ordering emits `OrderPlaced` events; Fulfillment consumes them to start picking
-- **Fulfillment → Billing**: Fulfillment emits `ShipmentDispatched` events; Billing consumes them to generate invoices
-- **Ordering ↔ Billing**: Shared types for `CustomerId` and `Money`
+**Invoice（請求書）**:
+商品の配送後に顧客に送付される支払いの要求。
+_避けるべき用語_: 勘定書（Bill）、支払い要求（payment request）
+
+**Customer（顧客）**:
+注文を行う個人または組織。
+_避けるべき用語_: クライアント（Client）、バイヤー（buyer）、アカウント（account）
 ```
 
-The skill infers which structure applies:
+## ルール
 
-- If `CONTEXT-MAP.md` exists, read it to find contexts
-- If only a root `CONTEXT.md` exists, single context
-- If neither exists, create a root `CONTEXT.md` lazily when the first term is resolved
+- **確固たる意見（Opinionated）を持つこと。** 同じ概念に対して複数の単語が存在する場合は、最も適切なものを1つ選択し、それ以外を `_避けるべき用語_` (Avoid) にリストしてください。
+- **定義は簡潔にする。** 最大で1文または2文とします。その用語が「何であるか（IS）」を定義し、「何をするか」は書かないでください。
+- **このプロジェクトのコンテキストに固有の用語のみを含める。** 一般的なプログラミング概念（タイムアウト、エラータイプ、ユーティリティパターンなど）は、プロジェクトで多用されていても含めないでください。用語を追加する前に、「これはこのコンテキストに固有 of 概念か、それとも一般的なプログラミング概念か？」と自問してください。固有の概念のみを含めます。
+- **自然なグループができる場合は、小見出し（サブヘッダー）でグループ化する。** すべての用語が1つのまとまった領域に属している場合は、フラットなリストで問題ありません。
 
-When multiple contexts exist, infer which one the current topic relates to. If unclear, ask.
+## 単一コンテキストと複数コンテキストのリポジトリの違い
+
+**単一コンテキスト（ほとんどのリポジトリ）:** リポジトリルートに1つの `CONTEXT.md` を配置します。
+
+**複数コンテキスト:** リポジトリルートの `CONTEXT-MAP.md` に、各コンテキストの一覧、配置場所、および相互の関係性を記述します：
+
+```md
+# コンテキストマップ (Context Map)
+
+## コンテキスト一覧
+
+- [Ordering](./src/ordering/CONTEXT.md) — 顧客の注文を受信して追跡する
+- [Billing](./src/billing/CONTEXT.md) — 請求書を発行し、支払いを処理する
+- [Fulfillment](./src/fulfillment/CONTEXT.md) — 倉庫でのピッキングと発送を管理する
+
+## 関係性
+
+- **Ordering → Fulfillment**: Orderingは `OrderPlaced` イベントを発行し、Fulfillmentはそれを購読してピッキングを開始する
+- **Fulfillment → Billing**: Fulfillmentは `ShipmentDispatched` イベントを発行し、Billingはそれを購読して請求書を生成する
+- **Ordering ↔ Billing**: `CustomerId` と `Money` の共通の型を共有する
+```
+
+スキルは以下のルールに従って、どの構造が適用されるかを推測します：
+
+- `CONTEXT-MAP.md` が存在する場合は、それを読み込んでコンテキストを特定します。
+- ルートの `CONTEXT.md` のみが存在する場合は、単一コンテキストとみなします。
+- どちらも存在しない場合は、最初の用語が決定されたときにルートに `CONTEXT.md` を遅延作成します。
+
+複数のコンテキストが存在する場合は、現在のトピックがどのコンテキストに関連しているかを推測してください。不明な場合はユーザーに尋ねてください。

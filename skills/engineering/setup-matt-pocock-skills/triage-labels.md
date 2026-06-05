@@ -1,15 +1,15 @@
-# Triage Labels
+# トリアージラベル (Triage Labels)
 
-The skills speak in terms of five canonical triage roles. This file maps those roles to the actual label strings used in this repo's issue tracker.
+スキル群は、5つの標準的なトリアージロールに基づいて動作します。このファイルは、それらのロールをこのリポジトリ of イシュートラッカーで使用される実際のラベル文字列にマッピングします。
 
-| Label in mattpocock/skills | Label in our tracker | Meaning                                  |
-| -------------------------- | -------------------- | ---------------------------------------- |
-| `needs-triage`             | `needs-triage`       | Maintainer needs to evaluate this issue  |
-| `needs-info`               | `needs-info`         | Waiting on reporter for more information |
-| `ready-for-agent`          | `ready-for-agent`    | Fully specified, ready for an AFK agent  |
-| `ready-for-human`          | `ready-for-human`    | Requires human implementation            |
-| `wontfix`                  | `wontfix`            | Will not be actioned                     |
+| mattpocock/skills におけるラベル | 私たちのトラッカーにおけるラベル | 意味                                     |
+| -------------------------------- | -------------------------------- | ---------------------------------------- |
+| `needs-triage`                   | `needs-triage`                   | メンテナによる評価が必要なイシュー       |
+| `needs-info`                     | `needs-info`                     | 報告者からの詳細情報待ち                 |
+| `ready-for-agent`                | `ready-for-agent`                | 仕様が完全に定義され、AFKエージェント対応 |
+| `ready-for-human`                | `ready-for-human`                | 人間による実装が必要                     |
+| `wontfix`                        | `wontfix`                        | 対応しない（クローズ）                   |
 
-When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the corresponding label string from this table.
+スキルが特定のロールに言及したとき（例: 「AFK対応のトリアージラベルを付与する」）は、この表の対応するラベル文字列を使用してください。
 
-Edit the right-hand column to match whatever vocabulary you actually use.
+右側の列（「私たちのトラッカーにおけるラベル」）を、実際に使用しているラベルのボキャブラリに合わせて編集して使用してください。

@@ -1,117 +1,119 @@
 ---
 name: write-a-skill
-description: Create new agent skills with proper structure, progressive disclosure, and bundled resources. Use when user wants to create, write, or build a new skill.
+description: 適切な構造、段階的な情報開示、および付属リソースを備えた新しいエージェントスキルを作成します。ユーザーが新しいスキルの作成、記述、または構築を希望する場合に使用します。
 ---
 
-# Writing Skills
+# スキルの作成
 
-## Process
+## プロセス
 
-1. **Gather requirements** - ask user about:
-   - What task/domain does the skill cover?
-   - What specific use cases should it handle?
-   - Does it need executable scripts or just instructions?
-   - Any reference materials to include?
+1. **要件定義** - ユーザーに以下の点を確認します：
+   - スキルがカバーするタスクやドメインは何か？
+   - 対応すべき具体的なユースケースは何か？
+   - 実行可能なスクリプトが必要か、あるいは指示（プロンプト）のみでよいか？
+   - 含めるべき参照資料はあるか？
 
-2. **Draft the skill** - create:
-   - SKILL.md with concise instructions
-   - Additional reference files if content exceeds 500 lines
-   - Utility scripts if deterministic operations needed
+2. **スキルのドラフト作成** - 以下を作成します：
+   - 簡潔な指示をまとめた `SKILL.md`
+   - コンテンツが500行を超える場合の追加参照ファイル
+   - 決定論的な操作が必要な場合のユーティリティスクリプト
 
-3. **Review with user** - present draft and ask:
-   - Does this cover your use cases?
-   - Anything missing or unclear?
-   - Should any section be more/less detailed?
+3. **ユーザーによるレビュー** - ドラフトを提示し、以下を確認します：
+   - これはあなたのユースケースをカバーしていますか？
+   - 不足している点や不明瞭な点はありますか？
+   - より詳細にすべきセクション、または簡略化すべきセクションはありますか？
 
-## Skill Structure
+## スキルの構造
 
 ```
 skill-name/
-├── SKILL.md           # Main instructions (required)
-├── REFERENCE.md       # Detailed docs (if needed)
-├── EXAMPLES.md        # Usage examples (if needed)
-└── scripts/           # Utility scripts (if needed)
+├── SKILL.md           # メインの指示（必須）
+├── REFERENCE.md       # 詳細ドキュメント（必要な場合）
+├── EXAMPLES.md        # 使用例（必要な場合）
+└── scripts/           # ユーティリティスクリプト（必要な場合）
     └── helper.js
 ```
 
-## SKILL.md Template
+## SKILL.md テンプレート
 
 ```md
 ---
 name: skill-name
-description: Brief description of capability. Use when [specific triggers].
+description: 機能の簡単な説明。「Use when [具体的なトリガー]」の形式で記述します。
 ---
 
-# Skill Name
+# スキル名
 
-## Quick start
+## クイックスタート
 
-[Minimal working example]
+[最小限の動作例]
 
-## Workflows
+## ワークフロー
 
-[Step-by-step processes with checklists for complex tasks]
+[複雑なタスク用のチェックリストを含むステップバイステップのプロセス]
 
-## Advanced features
+## 高度な機能
 
-[Link to separate files: See [REFERENCE.md](REFERENCE.md)]
+[別ファイルへのリンク: [REFERENCE.md](REFERENCE.md) を参照]
 ```
 
-## Description Requirements
+## 説明文（description）の要件
 
-The description is **the only thing your agent sees** when deciding which skill to load. It's surfaced in the system prompt alongside all other installed skills. Your agent reads these descriptions and picks the relevant skill based on the user's request.
+説明文は、エージェントがどのスキルをロードするかを決定する際に**唯一参照する情報**です。インストールされている他のスキルとともにシステムプロンプトに表示されます。エージェントはこれらの説明文を読み、ユーザーのリクエストに基づいて関連するスキルを選択します。
 
-**Goal**: Give your agent just enough info to know:
+**目標**: エージェントに以下の判断を下すのに十分な情報を提供すること：
 
-1. What capability this skill provides
-2. When/why to trigger it (specific keywords, contexts, file types)
+1. このスキルがどのような機能を提供するのか
+2. いつ、なぜそれを実行すべきか（具体的なキーワード、コンテキスト、ファイルタイプなど）
 
-**Format**:
+**フォーマット**:
 
-- Max 1024 chars
-- Write in third person
-- First sentence: what it does
-- Second sentence: "Use when [specific triggers]"
+- 最大1024文字
+- 三人称で記述する
+- 最初の文：何を行うスキルか
+- 二番目の文：「Use when [具体的なトリガー]」または「ユーザーが〜する場合に使用します」
 
-**Good example**:
+**良い例**:
 
 ```
 Extract text and tables from PDF files, fill forms, merge documents. Use when working with PDF files or when user mentions PDFs, forms, or document extraction.
 ```
 
-**Bad example**:
+**悪い例**:
 
 ```
 Helps with documents.
 ```
 
-The bad example gives your agent no way to distinguish this from other document skills.
+悪い例では、エージェントが他の文書関連スキルと区別する方法がありません。
 
-## When to Add Scripts
+## スクリプトを追加するタイミング
 
-Add utility scripts when:
+以下の場合にユーティリティスクリプトを追加します：
 
-- Operation is deterministic (validation, formatting)
-- Same code would be generated repeatedly
-- Errors need explicit handling
+- 操作が決定論的である場合（バリデーション、フォーマットなど）
+- 同じコードが繰り返し生成される可能性がある場合
+- エラーの明示的な処理が必要な場合
 
-Scripts save tokens and improve reliability vs generated code.
+スクリプトを使用することで、生成コードを使用するよりもトークンを節約し、信頼性を向上させることができます。
 
-## When to Split Files
+## ファイルを分割するタイミング
 
-Split into separate files when:
+以下の場合に個別のファイルに分割します：
 
-- SKILL.md exceeds 100 lines
-- Content has distinct domains (finance vs sales schemas)
-- Advanced features are rarely needed
+- `SKILL.md` が100行を超える場合
+- コンテンツのドメインが明確に分かれている場合（例：金融用スキーマと営業用スキーマ）
+- 高度な機能がめったに必要とされない場合
 
-## Review Checklist
+## レビューチェックリスト
 
-After drafting, verify:
+ドラフト作成後、以下を確認します：
 
-- [ ] Description includes triggers ("Use when...")
-- [ ] SKILL.md under 100 lines
-- [ ] No time-sensitive info
-- [ ] Consistent terminology
-- [ ] Concrete examples included
-- [ ] References one level deep
+- [ ] 説明文にトリガーが含まれていること（「Use when...」または「〜する場合に使用します」）
+- [ ] `SKILL.md` が100行未満であること
+- [ ] 時間に依存する情報が含まれていないこと
+- [ ] 用語が一貫していること
+- [ ] 具体的な例が含まれていること
+- [ ] 参照が1階層深く設定されていること
+
+**重要**: 指示、プロンプトの解説、ユーザーへの応答はすべて日本語で行ってください。

@@ -1,10 +1,12 @@
 ---
 name: grill-me
-description: Interview the user relentlessly about a plan or design until reaching shared understanding, resolving each branch of the decision tree. Use when user wants to stress-test a plan, get grilled on their design, or mentions "grill me".
+description: 計画や設計についてユーザーに徹底的にインタビューし、意思決定ツリーの各分岐を解決しながら共通の理解に達します。ユーザーが計画をストレステストしたい場合、設計について問いただされたい場合、または「grill me」「グリルして」と言及した場合に使用します。
 ---
 
-Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
+共通の理解に達するまで、この計画のあらゆる側面について容赦なく私にインタビューしてください。設計ツリーの各分岐を下りながら、決定間の依存関係を1つずつ解決してください。質問ごとに、推奨される回答を提示してください。
 
-Ask the questions one at a time.
+質問は1つずつ行ってください。
 
-If a question can be answered by exploring the codebase, explore the codebase instead.
+コードベースを探索することで解決できる質問である場合は、質問する代わりにコードベースを探索してください。
+
+**重要**: 質問、提案、すべての対話は必ず日本語で行ってください。

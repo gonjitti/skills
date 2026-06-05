@@ -1,18 +1,18 @@
-# Domain Docs
+# ドメインドキュメントの読み込み規則
 
-How the engineering skills should consume this repo's domain documentation when exploring the codebase.
+コードベースを探索する際、エンジニアリングスキルがこのリポジトリのドメインドキュメントをどのように読み込むべきかを定義します。
 
-## Before exploring, read these
+## 探索を始める前に、以下を読み込んでください
 
-- **`CONTEXT.md`** at the repo root, or
-- **`CONTEXT-MAP.md`** at the repo root if it exists — it points at one `CONTEXT.md` per context. Read each one relevant to the topic.
-- **`docs/adr/`** — read ADRs that touch the area you're about to work in. In multi-context repos, also check `src/<context>/docs/adr/` for context-scoped decisions.
+- リポジトリルートの **`CONTEXT.md`**、または
+- 存在する場合はリポジトリルートの **`CONTEXT-MAP.md`** — コンテキストごとの `CONTEXT.md` のパスを指し示します。作業を行うトピックに関連するコンテキストをそれぞれ読み込んでください。
+- **`docs/adr/`** — これから作業を行う領域に関連するADRを読み込みます。複数コンテキストのリポジトリの場合は、`src/<context>/docs/adr/` にあるコンテキスト固有の決定事項も確認してください。
 
-If any of these files don't exist, **proceed silently**. Don't flag their absence; don't suggest creating them upfront. The producer skill (`/grill-with-docs`) creates them lazily when terms or decisions actually get resolved.
+これらのファイルが存在しない場合は、**何も出力せず静かに処理を続行してください**。それらの不在を警告したり、事前に作成することを提案したりしないでください。ドキュメントを作成するスキル（`/grill-with-docs`）は、用語や意思決定が実際に解決されたときに遅延作成を行います。
 
-## File structure
+## ファイル構造
 
-Single-context repo (most repos):
+単一コンテキストのリポジトリ（ほとんどのリポジトリ）：
 
 ```
 /
@@ -23,29 +23,29 @@ Single-context repo (most repos):
 └── src/
 ```
 
-Multi-context repo (presence of `CONTEXT-MAP.md` at the root):
+複数コンテキストのリポジトリ（ルートに `CONTEXT-MAP.md` が存在する場合）：
 
 ```
 /
 ├── CONTEXT-MAP.md
-├── docs/adr/                          ← system-wide decisions
+├── docs/adr/                          ← システム全体の意思決定
 └── src/
     ├── ordering/
     │   ├── CONTEXT.md
-    │   └── docs/adr/                  ← context-specific decisions
+    │   └── docs/adr/                  ← コンテキスト固有の意思決定
     └── billing/
         ├── CONTEXT.md
         └── docs/adr/
 ```
 
-## Use the glossary's vocabulary
+## 用語集のボキャブラリを使用する
 
-When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `CONTEXT.md`. Don't drift to synonyms the glossary explicitly avoids.
+出力ファイル内でドメイン概念に名前を付けるとき（イシューのタイトル、リファクタリングの提案、仮説、テスト名など）は、`CONTEXT.md` で定義された用語を使用してください。用語集が明示的に避けるよう指定している類義語は使用しないでください。
 
-If the concept you need isn't in the glossary yet, that's a signal — either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/grill-with-docs`).
+必要な概念がまだ用語集に存在しない場合は、それがシグナルになります。プロジェクトが使用していない言葉を作ろうとしているか（再考してください）、あるいはドキュメントに本当のギャップが存在します（`/grill-with-docs` のためにメモしておいてください）。
 
-## Flag ADR conflicts
+## ADRとの競合を指摘する
 
-If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
+作成するアウトプットが既存のADRと矛盾する場合は、黙って上書きするのではなく、明示的に指摘してください：
 
-> _Contradicts ADR-0007 (event-sourced orders) — but worth reopening because…_
+> _ADR-0007 (event-sourced orders) と矛盾しますが、〜の理由から再検討の価値があります…_

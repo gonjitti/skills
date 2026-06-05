@@ -1,168 +1,151 @@
-# Writing Agent Briefs
+# エージェントブリーフ (Agent Brief) の書き方
 
-An agent brief is a structured comment posted on a GitHub issue when it moves to `ready-for-agent`. It is the authoritative specification that an AFK agent will work from. The original issue body and discussion are context — the agent brief is the contract.
+エージェントブリーフとは、イシューが `ready-for-agent` に遷移したときにGitHubイシューに投稿される構造化されたコメントです。これは、非同期（AFK）で稼働するエージェントが作業の基準とする、信頼できる唯一の仕様書となります。元のイシュー本文やディスカッションはあくまでコンテキストであり、エージェントブリーフが「契約」となります。
 
-## Principles
+## 原則
 
-### Durability over precision
+### 細かさよりも「耐久性」
 
-The issue may sit in `ready-for-agent` for days or weeks. The codebase will change in the meantime. Write the brief so it stays useful even as files are renamed, moved, or refactored.
+イシューは `ready-for-agent` の状態で数日または数週間放置されることがあります。その間にコードベースは変化します。ファイル名が変更されたり、移動されたり、リファクタリングされたりしても、有用性を失わないようにブリーフを記述してください。
 
-- **Do** describe interfaces, types, and behavioral contracts
-- **Do** name specific types, function signatures, or config shapes that the agent should look for or modify
-- **Don't** reference file paths — they go stale
-- **Don't** reference line numbers
-- **Don't** assume the current implementation structure will remain the same
+- **推奨事項**: インターフェース、型、および動作上の契約を記述する
+- **推奨事項**: エージェントが探すか変更すべき、特定の型名、関数シグネチャ、または設定の形状（スキーマ）を指定する
+- **禁止事項**: ファイルパスを参照しない（古くなるため）
+- **禁止事項**: 行番号を参照しない
+- **禁止事項**: 現在の実装構造がそのまま維持されると仮定しない
 
-### Behavioral, not procedural
+### 手順ではなく「振る舞い」
 
-Describe **what** the system should do, not **how** to implement it. The agent will explore the codebase fresh and make its own implementation decisions.
+システムが **何をするべきか（What）** を記述し、**どう実装するか（How）** は記述しないでください。エージェントはコードベースを最初から探索し、独自の実装方法を決定します。
 
-- **Good:** "The `SkillConfig` type should accept an optional `schedule` field of type `CronExpression`"
-- **Bad:** "Open src/types/skill.ts and add a schedule field on line 42"
-- **Good:** "When a user runs `/triage` with no arguments, they should see a summary of issues needing attention"
-- **Bad:** "Add a switch statement in the main handler function"
+- **良い例:** 「`SkillConfig` 型は、`CronExpression` 型のオプションの `schedule` フィールドを受け入れる必要がある」
+- **悪い例:** 「`src/types/skill.ts` を開き、42行目に `schedule` フィールドを追加する」
+- **良い例:** 「引数なしで `/triage` を実行した場合、ユーザーに対応が必要なイシューのサマリーが表示されること」
+- **悪い例:** 「メインのハンドラ関数に `switch` ステートメントを追加する」
 
-### Complete acceptance criteria
+### 完全な受け入れ基準 (Acceptance Criteria)
 
-The agent needs to know when it's done. Every agent brief must have concrete, testable acceptance criteria. Each criterion should be independently verifiable.
+エージェントはいつ作業が完了したかを知る必要があります。すべてのエージェントブリーフには、具体的かつテスト可能な受け入れ基準が必要です。各基準は個別に検証可能でなければなりません。
 
-- **Good:** "Running `gh issue list --label needs-triage` returns issues that have been through initial classification"
-- **Bad:** "Triage should work correctly"
+- **良い例:** 「`gh issue list --label needs-triage` を実行すると、初期分類を通過したイシューが返される」
+- **悪い例:** 「トリアージが正しく機能すること」
 
-### Explicit scope boundaries
+### 明示的なスコープ境界（対象外の定義）
 
-State what is out of scope. This prevents the agent from gold-plating or making assumptions about adjacent features.
+何が対象外（スコープ外）であるかを明記します。これにより、エージェントが余計な機能を作り込んだり、隣接する機能について勝手な仮定を置いたりするのを防ぐことができます。
 
-## Template
-
-```markdown
-## Agent Brief
-
-**Category:** bug / enhancement
-**Summary:** one-line description of what needs to happen
-
-**Current behavior:**
-Describe what happens now. For bugs, this is the broken behavior.
-For enhancements, this is the status quo the feature builds on.
-
-**Desired behavior:**
-Describe what should happen after the agent's work is complete.
-Be specific about edge cases and error conditions.
-
-**Key interfaces:**
-- `TypeName` — what needs to change and why
-- `functionName()` return type — what it currently returns vs what it should return
-- Config shape — any new configuration options needed
-
-**Acceptance criteria:**
-- [ ] Specific, testable criterion 1
-- [ ] Specific, testable criterion 2
-- [ ] Specific, testable criterion 3
-
-**Out of scope:**
-- Thing that should NOT be changed or addressed in this issue
-- Adjacent feature that might seem related but is separate
-```
-
-## Examples
-
-### Good agent brief (bug)
+## テンプレート
 
 ```markdown
 ## Agent Brief
 
-**Category:** bug
-**Summary:** Skill description truncation drops mid-word, producing broken output
+**カテゴリ:** bug / enhancement
+**サマリー:** 何を行う必要があるかの1行説明
 
-**Current behavior:**
-When a skill description exceeds 1024 characters, it is truncated at exactly
-1024 characters regardless of word boundaries. This produces descriptions
-that end mid-word (e.g. "Use when the user wants to confi").
+**現在の挙動:**
+現在の状態を説明します。バグの場合は、壊れている挙動を記述します。
+機能改善（enhancement）の場合は、機能が前提とする現状を記述します。
 
-**Desired behavior:**
-Truncation should break at the last word boundary before 1024 characters
-and append "..." to indicate truncation.
+**期待される挙動:**
+エージェントの作業が完了した後にどうあるべきかを記述します。
+エッジケースやエラー条件について具体的に記述してください。
 
-**Key interfaces:**
-- The `SkillMetadata` type's `description` field — no type change needed,
-  but the validation/processing logic that populates it needs to respect
-  word boundaries
-- Any function that reads SKILL.md frontmatter and extracts the description
+**主要なインターフェース:**
+- `TypeName` — 何をどのように変更する必要があるか
+- `functionName()` の戻り値 — 現在の戻り値と、あるべき戻り値
+- 設定スキーマ — 必要となる新しい設定オプション
 
-**Acceptance criteria:**
-- [ ] Descriptions under 1024 chars are unchanged
-- [ ] Descriptions over 1024 chars are truncated at the last word boundary
-      before 1024 chars
-- [ ] Truncated descriptions end with "..."
-- [ ] The total length including "..." does not exceed 1024 chars
+**受け入れ基準:**
+- [ ] 具体的かつテスト可能な基準 1
+- [ ] 具体的かつテスト可能な基準 2
+- [ ] 具体的かつテスト可能な基準 3
 
-**Out of scope:**
-- Changing the 1024 char limit itself
-- Multi-line description support
+**スコープ対象外:**
+- このイシューで変更または対処すべきではない事項
+- 関連しているように見えるが、実際には別の隣接機能
 ```
 
-### Good agent brief (enhancement)
+## 例
+
+### 良いエージェントブリーフの例 (バグ)
 
 ```markdown
 ## Agent Brief
 
-**Category:** enhancement
-**Summary:** Add `.out-of-scope/` directory support for tracking rejected feature requests
+**カテゴリ:** bug
+**サマリー:** スキル説明の切り詰め処理が単語の途中で発生し、表示が壊れる
 
-**Current behavior:**
-When a feature request is rejected, the issue is closed with a `wontfix` label
-and a comment. There is no persistent record of the decision or reasoning.
-Future similar requests require the maintainer to recall or search for the
-prior discussion.
+**現在の挙動:**
+スキルの説明文が1024文字を超えると、単語の境界を無視して正確に1024文字の位置で切り詰められます。これにより、単語の途中で終わる説明文が生成されます（例: "Use when the user wants to confi"）。
 
-**Desired behavior:**
-Rejected feature requests should be documented in `.out-of-scope/<concept>.md`
-files that capture the decision, reasoning, and links to all issues that
-requested the feature. When triaging new issues, these files should be
-checked for matches.
+**期待される挙動:**
+切り詰めは1024文字未満の最後の単語の境界で行われ、切り詰められたことを示すために末尾に "..." を追加する必要があります。
 
-**Key interfaces:**
-- Markdown file format in `.out-of-scope/` — each file should have a
-  `# Concept Name` heading, a `**Decision:**` line, a `**Reason:**` line,
-  and a `**Prior requests:**` list with issue links
-- The triage workflow should read all `.out-of-scope/*.md` files early
-  and match incoming issues against them by concept similarity
+**主要なインターフェース:**
+- `SkillMetadata` 型の `description` フィールド — 型の変更は不要ですが、データを投入するバリデーション/処理ロジックが単語の境界を意識する必要があります。
+- `SKILL.md` のフロントマターを読み取って説明文を抽出するすべての関数。
 
-**Acceptance criteria:**
-- [ ] Closing a feature as wontfix creates/updates a file in `.out-of-scope/`
-- [ ] The file includes the decision, reasoning, and link to the closed issue
-- [ ] If a matching `.out-of-scope/` file already exists, the new issue is
-      appended to its "Prior requests" list rather than creating a duplicate
-- [ ] During triage, existing `.out-of-scope/` files are checked and surfaced
-      when a new issue matches a prior rejection
+**受け入れ基準:**
+- [ ] 1024文字未満の説明文は変更されないこと
+- [ ] 1024文字を超える説明文は、1024文字未満の最後の単語の境界で切り詰められること
+- [ ] 切り詰められた説明文の末尾が "..." で終わること
+- [ ] "..." を含む合計の長さが1024文字を超えないこと
 
-**Out of scope:**
-- Automated matching (human confirms the match)
-- Reopening previously rejected features
-- Bug reports (only enhancement rejections go to `.out-of-scope/`)
+**スコープ対象外:**
+- 1024文字の制限自体を変更すること
+- 複数行の説明文のサポート
 ```
 
-### Bad agent brief
+### 良いエージェントブリーフの例 (機能改善)
 
 ```markdown
 ## Agent Brief
 
-**Summary:** Fix the triage bug
+**カテゴリ:** enhancement
+**サマリー:** 却下された機能リクエストを追跡するための `.out-of-scope/` ディレクトリのサポートを追加する
 
-**What to do:**
-The triage thing is broken. Look at the main file and fix it.
-The function around line 150 has the issue.
+**現在の挙動:**
+機能リクエストが却下された場合、イシューは `wontfix` ラベルとコメントが付与されてクローズされます。決定内容やその理由に関する永続的な記録は残りません。将来同様のリクエストがあった場合、メンテナが過去の議論を思い出すか検索する必要があります。
 
-**Files to change:**
-- src/triage/handler.ts (line 150)
-- src/types.ts (line 42)
+**期待される挙動:**
+却下された機能リクエストは `.out-of-scope/<コンセプト>.md` ファイルに文書化され、決定事項、理由、およびその機能を要求したすべてのイシューへのリンクを記録します。新しいイシューをトリアージする際、これらのファイルと照合して一致するものを確認する必要があります。
+
+**主要なインターフェース:**
+- `.out-of-scope/` 内のMarkdown形式 — 各ファイルは `# コンセプト名` の見出し、`**決定事項:**` の行、`**理由:**` の行、およびイシューへのリンクを含む `**過去のリクエスト:**` のリストを持つ必要があります。
+- トリアージワークフローは、プロセスの早い段階で `.out-of-scope/*.md` ファイルをすべて読み込み、コンセプトの類似性に基づいて新規イシューとのマッチングを行います。
+
+**受け入れ基準:**
+- [ ] 機能を wontfix としてクローズすると、`.out-of-scope/` 内にファイルが作成または更新されること
+- [ ] ファイルに決定事項、理由、およびクローズされたイシューへのリンクが含まれていること
+- [ ] 一致する `.out-of-scope/` ファイルがすでに存在する場合、重複ファイルを作成するのではなく、新しいイシューがその「過去のリクエスト」リストに追加されること
+- [ ] トリアージ中に、既存の `.out-of-scope/` ファイルがチェックされ、新しいイシューが過去の却下案件と一致する場合にメンテナに提示されること
+
+**スコープ対象外:**
+- 自動マッチング（人間が一致を確認します）
+- 過去に却下された機能の再オープン
+- バグ報告（機能改善の却下のみが `.out-of-scope/` に記録されます）
 ```
 
-This is bad because:
-- No category
-- Vague description ("the triage thing is broken")
-- References file paths and line numbers that will go stale
-- No acceptance criteria
-- No scope boundaries
-- No description of current vs desired behavior
+### 悪いエージェントブリーフの例
+
+```markdown
+## Agent Brief
+
+**サマリー:** トリアージのバグを修正する
+
+**やること:**
+トリアージの処理が壊れています。メインのファイルを見て修正してください。
+150行目あたりの関数に問題があります。
+
+**変更するファイル:**
+- src/triage/handler.ts (150行目)
+- src/types.ts (42行目)
+```
+
+この例が悪い理由：
+- カテゴリがない
+- 曖昧な説明（「トリアージの処理が壊れています」）
+- すぐに古くなるファイルパスや行番号を参照している
+- 受け入れ基準がない
+- スコープ境界が定義されていない
+- 現在の挙動と期待される挙動の説明がない

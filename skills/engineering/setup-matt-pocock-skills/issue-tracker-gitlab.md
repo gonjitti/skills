@@ -1,23 +1,23 @@
-# Issue tracker: GitLab
+# イシュートラッカー: GitLab
 
-Issues and PRDs for this repo live as GitLab issues. Use the [`glab`](https://gitlab.com/gitlab-org/cli) CLI for all operations.
+このリポジトリのイシューおよびPRDは、GitLab Issuesで管理されます。すべての操作で [`glab`](https://gitlab.com/gitlab-org/cli) CLIを使用します。
 
-## Conventions
+## 操作規則（コマンド例）
 
-- **Create an issue**: `glab issue create --title "..." --description "..."`. Use a heredoc for multi-line descriptions. Pass `--description -` to open an editor.
-- **Read an issue**: `glab issue view <number> --comments`. Use `-F json` for machine-readable output.
-- **List issues**: `glab issue list -F json` with appropriate `--label` filters.
-- **Comment on an issue**: `glab issue note <number> --message "..."`. GitLab calls comments "notes".
-- **Apply / remove labels**: `glab issue update <number> --label "..."` / `--unlabel "..."`. Multiple labels can be comma-separated or by repeating the flag.
-- **Close**: `glab issue close <number>`. `glab issue close` does not accept a closing comment, so post the explanation first with `glab issue note <number> --message "..."`, then close.
-- **Merge requests**: GitLab calls PRs "merge requests". Use `glab mr create`, `glab mr view`, `glab mr note`, etc. — the same shape as `gh pr ...` with `mr` in place of `pr` and `note`/`--message` in place of `comment`/`--body`.
+- **イシューの作成**: `glab issue create --title "..." --description "..."`。複数行の説明文にはヒアドキュメントを使用します。エディタを開く場合は `--description -` を渡します。
+- **イシューの読み取り**: `glab issue view <番号> --comments`。機械可読な出力を得るには `-F json` を使用します。
+- **イシューのリスト表示**: 適切な `--label` フィルターを指定して `glab issue list -F json` を実行します。
+- **イシューへのコメント**: `glab issue note <番号> --message "..."`。GitLabではコメントを「ノート（note）」と呼びます。
+- **ラベルの付与 / 削除**: `glab issue update <番号> --label "..."` / `--unlabel "..."`。複数のラベルはカンマ区切りにするか、フラグを繰り返すことで指定できます。
+- **イシューのクローズ**: `glab issue close <番号>`。`glab issue close` はクローズ時のコメントを受け付けないため、先に `glab issue note <番号> --message "..."` で説明文を投稿してからクローズしてください。
+- **マージリクエスト**: GitLabではプルリクエスト（PR）を「マージリクエスト（MR）」と呼びます。`glab mr create`、`glab mr view`、`glab mr note` などを使用します。`gh pr ...` コマンドの `pr` を `mr` に、`comment`/`--body` を `note`/`--message` に置き換えたものと同等です。
 
-Infer the repo from `git remote -v` — `glab` does this automatically when run inside a clone.
+`git remote -v` からリポジトリ情報を推測します。`glab` はクローンされたリポジトリ内で実行されると自動的にこれを判別します。
 
-## When a skill says "publish to the issue tracker"
+## スキルが「イシュートラッカーに公開する」と指示した場合
 
-Create a GitLab issue.
+GitLabのイシューを作成してください。
 
-## When a skill says "fetch the relevant ticket"
+## スキルが「関連チケットを取得する」と指示した場合
 
-Run `glab issue view <number> --comments`.
+`glab issue view <番号> --comments` を実行してください。

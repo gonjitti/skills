@@ -1,30 +1,32 @@
 ---
 name: prototype
-description: Build a throwaway prototype to flesh out a design before committing to it. Routes between two branches — a runnable terminal app for state/business-logic questions, or several radically different UI variations toggleable from one route. Use when the user wants to prototype, sanity-check a data model or state machine, mock up a UI, explore design options, or says "prototype this", "let me play with it", "try a few designs".
+description: 本実装を行う前に設計を具体化するための、使い捨てプロトタイプ（Throwaway Prototype）を構築します。2つのブランチに分岐します：状態やビジネスロジックの検証用となる「実行可能なターミナルアプリ」、または1つのルートから切り替え可能な「複数のまったく異なるUIパターン」。ユーザーがプロトタイプを作成したい場合、データモデルや状態マシンの動作確認を行いたい場合、UIのモックアップを作成したい場合、設計の選択肢を探索したい場合、あるいは「prototype this」「プロトタイプを作って」「触って確かめたい」「いくつかデザインを試して」と言及した場合に使用します。
 ---
 
-# Prototype
+# Prototype (プロトタイプ)
 
-A prototype is **throwaway code that answers a question**. The question decides the shape.
+プロトタイプとは、**「特定の問い（質問）に答えるための使い捨てコード」** です。その問いによってプロトタイプの形状が決まります。
 
-## Pick a branch
+## ブランチの選択
 
-Identify which question is being answered — from the user's prompt, the surrounding code, or by asking if the user is around:
+ユーザーのプロンプト、周囲のコードから、あるいはユーザーが在席している場合は直接尋ねることによって、解決すべき「問い」がどちらであるかを特定します：
 
-- **"Does this logic / state model feel right?"** → [LOGIC.md](LOGIC.md). Build a tiny interactive terminal app that pushes the state machine through cases that are hard to reason about on paper.
-- **"What should this look like?"** → [UI.md](UI.md). Generate several radically different UI variations on a single route, switchable via a URL search param and a floating bottom bar.
+- **「このロジックや状態モデルは適切か？」** → [LOGIC.md](LOGIC.md) に進みます。机上では判断が難しいエッジケースを検証できる、小さなインタラクティブ・ターミナルアプリ（TUI）を構築します。
+- **「これはどのような見た目であるべきか？」** → [UI.md](UI.md) に進みます。1つのルート上に、URLクエリパラメータとフローティングボトムバーで切り替え可能な、構造のまったく異なる複数のUIパターンを生成します。
 
-The two branches produce very different artifacts — getting this wrong wastes the whole prototype. If the question is genuinely ambiguous and the user isn't reachable, default to whichever branch better matches the surrounding code (a backend module → logic; a page or component → UI) and state the assumption at the top of the prototype.
+これら2つのブランチでは、作成される成果物が大きく異なります。選択を誤るとプロトタイプ全体の労力が無駄になります。もし「問い」が曖昧でユーザーに確認できない場合は、周囲のコードに合致する方をデフォルトと判断し（バックエンドモジュールならロジック、ページやコンポーネントならUI）、プロトタイプの上部にその仮定を明記してください。
 
-## Rules that apply to both
+## 共通のルール
 
-1. **Throwaway from day one, and clearly marked as such.** Locate the prototype code close to where it will actually be used (next to the module or page it's prototyping for) so context is obvious — but name it so a casual reader can see it's a prototype, not production. For throwaway UI routes, obey whatever routing convention the project already uses; don't invent a new top-level structure.
-2. **One command to run.** Whatever the project's existing task runner supports — `pnpm <name>`, `python <path>`, `bun <path>`, etc. The user must be able to start it without thinking.
-3. **No persistence by default.** State lives in memory. Persistence is the thing the prototype is _checking_, not something it should depend on. If the question explicitly involves a database, hit a scratch DB or a local file with a clear "PROTOTYPE — wipe me" name.
-4. **Skip the polish.** No tests, no error handling beyond what makes the prototype _runnable_, no abstractions. The point is to learn something fast and then delete it.
-5. **Surface the state.** After every action (logic) or on every variant switch (UI), print or render the full relevant state so the user can see what changed.
-6. **Delete or absorb when done.** When the prototype has answered its question, either delete it or fold the validated decision into the real code — don't leave it rotting in the repo.
+1. **最初から使い捨てコードとして作成し、それを明記する。** プロトタイプコードは、実際に使用される場所の近く（プロトタイプ対象のモジュールやページの隣）に配置して文脈が伝わるようにします。ただし、一目でプロトタイプであり本番コードではないことがわかるような名前にしてください。UIのプロトタイプ用ルートを作成する場合は、プロジェクトの既存のルーティング規則に従い、不要な新しいトップレベル構造を作らないでください。
+2. **ワンコマンドで実行可能にする。** プロジェクトで使われている既存のタスクランナー（`pnpm <name>`、`python <path>`、`bun <path>` など）で実行できるようにします。ユーザーが起動コマンドに迷わないようにしてください。
+3. **デフォルトではデータを永続化しない。** 状態はインメモリで管理します。永続化自体がプロトタイプで検証したいテーマでない限り、永続化レイヤーに依存すべきではありません。データベースの使用がどうしても必要な場合は、「PROTOTYPE — 削除OK」と一目でわかる名前のスクラッチDBやローカルファイルを使用します。
+4. **磨き上げ（ポーリッシュ）は不要。** テストコードは書かず、エラー処理も動作に必要な最小限に留め、抽象化も行いません。目的は、素早く学習してコードを削除することです。
+5. **状態（State）を表面化する。** アクションを実行するたび（ロジック）、またはバリアントを切り替えるたび（UI）に、関連する状態の全容を出力・レンダリングして、何が変化したかをユーザーが目視できるようにします。
+6. **完了したら削除または統合する。** プロトタイプによって「問い」への答えが得られたら、コードを削除するか、検証された決定内容を本番コードに統合します。リポジトリ内にプロトタイプコードを放置しないでください。
 
-## When done
+## 完了時
 
-The _answer_ is the only thing worth keeping from a prototype. Capture it somewhere durable (commit message, ADR, issue, or a `NOTES.md` next to the prototype) along with the question it was answering. If the user is around, that capture is a quick conversation; if not, leave the placeholder so they (or you, on the next pass) can fill in the verdict before deleting the prototype.
+プロトタイプから残すべき唯一のものは、得られた **「答え（結論）」** です。それを検証した「問い」とともに、耐久性のある形（コミットメッセージ、ADR、イシュー、またはプロトタイプの隣の `NOTES.md`）で記録してください。ユーザーが在席している場合は簡単な会話で合意できますが、不在の場合はプレースホルダーを残しておき、プロトタイプを削除する前に結論を記録できるようにしてください。
+
+**重要**: 質問、生成するプロトタイプのコードコメント、ドキュメント、およびユーザーとのすべての対話は日本語で行ってください。

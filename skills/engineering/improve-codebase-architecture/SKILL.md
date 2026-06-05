@@ -1,81 +1,83 @@
 ---
 name: improve-codebase-architecture
-description: Find deepening opportunities in a codebase, informed by the domain language in CONTEXT.md and the decisions in docs/adr/. Use when the user wants to improve architecture, find refactoring opportunities, consolidate tightly-coupled modules, or make a codebase more testable and AI-navigable.
+description: CONTEXT.md のドメイン言語と docs/adr/ の意思決定情報をもとに、コードベースにおける「モジュールを深くする（deepening）」余地を見つけます。ユーザーがアーキテクチャの改善、リファクタリングの機会の探索、密結合なモジュールの整理、またはコードベースのテスト容易性やAI追跡性の向上を希望する場合に使用します。
 ---
 
-# Improve Codebase Architecture
+# Improve Codebase Architecture (コードベース・アーキテクチャの改善)
 
-Surface architectural friction and propose **deepening opportunities** — refactors that turn shallow modules into deep ones. The aim is testability and AI-navigability.
+アーキテクチャ上の摩擦を表面化させ、**「深くする機会（deepening opportunities）」**（浅いモジュールを深いモジュールへと変換するリファクタリング）を提案します。目的は、テスト容易性とAIによるコード理解のしやすさ（AI-navigability）の向上です。
 
-## Glossary
+## 用語定義（Glossary）
 
-Use these terms exactly in every suggestion. Consistent language is the point — don't drift into "component," "service," "API," or "boundary." Full definitions in [LANGUAGE.md](LANGUAGE.md).
+提案の中では、以下の用語を必ずそのまま使用してください。一貫した言語を使用することが重要です。「コンポーネント」「サービス」「API」「境界（境界線）」といった言葉に流されないでください。詳細な定義は [LANGUAGE.md](LANGUAGE.md) にあります。
 
-- **Module** — anything with an interface and an implementation (function, class, package, slice).
-- **Interface** — everything a caller must know to use the module: types, invariants, error modes, ordering, config. Not just the type signature.
-- **Implementation** — the code inside.
-- **Depth** — leverage at the interface: a lot of behaviour behind a small interface. **Deep** = high leverage. **Shallow** = interface nearly as complex as the implementation.
-- **Seam** — where an interface lives; a place behaviour can be altered without editing in place. (Use this, not "boundary.")
-- **Adapter** — a concrete thing satisfying an interface at a seam.
-- **Leverage** — what callers get from depth.
-- **Locality** — what maintainers get from depth: change, bugs, knowledge concentrated in one place.
+- **モジュール (Module)** — インターフェースと実装を持つすべてのもの（関数、クラス、パッケージ、スライスなど）。
+- **インターフェース (Interface)** — 呼び出し元がモジュールを正しく使用するために知っておくべきすべてのこと（型、不変条件、エラーモード、実行順序の制約、設定など。単なる型シグネチャに留まりません）。
+- **実装 (Implementation)** — 内部のコード。
+- **深さ (Depth)** — インターフェースにおけるレバレッジの大きさ。学習すべき小さなインターフェースの背後に、多くの振る舞いが隠されている状態を **深い（Deep）** と呼びます。インターフェースの複雑さが実装とほぼ同じである状態を **浅い（Shallow）** と呼びます。
+- **シーム (Seam)** — インターフェースが存在する場所。コードをその場で直接書き換えることなく、振る舞いを変更できる場所（「境界」ではなくこの用語を使用してください）。
+- **アダプター (Adapter)** — シームにおいてインターフェースを満たす具体的な実装。
+- **レバレッジ (Leverage)** — 呼び出し元が「深さ」から得る恩恵。
+- **ローカリティ (Locality)** — メンテナが「深さ」から得る恩恵。変更、バグ、知識が一箇所に集中している状態。
 
-Key principles (see [LANGUAGE.md](LANGUAGE.md) for the full list):
+重要な原則（完全なリストは [LANGUAGE.md](LANGUAGE.md) を参照）：
 
-- **Deletion test**: imagine deleting the module. If complexity vanishes, it was a pass-through. If complexity reappears across N callers, it was earning its keep.
-- **The interface is the test surface.**
-- **One adapter = hypothetical seam. Two adapters = real seam.**
+- **削除テスト (Deletion test)**: モジュールを削除したと仮定します。複雑さが消失するなら、それは単なるパススルー（中継）モジュールでした。もし複雑さがN個の呼び出し元に分散して再出現するなら、そのモジュールは存在価値を果たしていました。
+- **インターフェースこそがテストサーフェス（テスト対象の表面）である。**
+- **アダプターが1つ ＝ 仮定のシーム。アダプターが2つ ＝ 本物のシーム。**
 
-This skill is _informed_ by the project's domain model. The domain language gives names to good seams; ADRs record decisions the skill should not re-litigate.
+このスキルは、プロジェクトのドメインモデルから情報を **得て** 動作します。ドメイン言語は優れたシームに名前を与え、ADRはスキルが再議論すべきではない過去の決定を記録します。
 
-## Process
+## プロセス
 
-### 1. Explore
+### 1. 探索
 
-Read the project's domain glossary and any ADRs in the area you're touching first.
+まず、触れる予定の領域に関連するプロジェクトのドメイン用語集（`CONTEXT.md`）とすべてのADRを読みます。
 
-Then use the Agent tool with `subagent_type=Explore` to walk the codebase. Don't follow rigid heuristics — explore organically and note where you experience friction:
+次に、Explore タイプのサブエージェントを使用してコードベースを探索します。固定的なヒューリスティックに頼るのではなく、有機的に探索し、どこで摩擦（やりにくさ）を感じるかをメモします：
 
-- Where does understanding one concept require bouncing between many small modules?
-- Where are modules **shallow** — interface nearly as complex as the implementation?
-- Where have pure functions been extracted just for testability, but the real bugs hide in how they're called (no **locality**)?
-- Where do tightly-coupled modules leak across their seams?
-- Which parts of the codebase are untested, or hard to test through their current interface?
+- 1つのコンセプトを理解するために、多くの小さなモジュールの間を行き来する必要がある場所はどこか？
+- モジュールが **浅く**（インターフェースの複雑さが実装とほぼ同じ）なっている場所はどこか？
+- 単にテスト容易性のためだけに純粋関数が抽出されているが、実際のバグはそれらの呼び出し方に潜んでいる場所（**ローカリティ** が欠如している場所）はどこか？
+- 密結合なモジュールがシームを越えて漏れ出している（リークしている）場所はどこか？
+- コードベースの中でテストされていない場所、または現在のインターフェース経由ではテストが困難な場所はどこか？
 
-Apply the **deletion test** to anything you suspect is shallow: would deleting it concentrate complexity, or just move it? A "yes, concentrates" is the signal you want.
+浅いと疑われるものに対して **削除テスト** を適用します：それを削除した場合、複雑さは一箇所に集中しますか、それとも単に移動するだけですか？「集中する」という答えが得られた場合が、深いモジュールにするべきシグナルです。
 
-### 2. Present candidates as an HTML report
+### 2. 候補をHTMLレポートとして提示
 
-Write a self-contained HTML file to the OS temp directory so nothing lands in the repo. Resolve the temp dir from `$TMPDIR`, falling back to `/tmp` (or `%TEMP%` on Windows), and write to `<tmpdir>/architecture-review-<timestamp>.html` so each run gets a fresh file. Open it for the user — `xdg-open <path>` on Linux, `open <path>` on macOS, `start <path>` on Windows — and tell them the absolute path.
+リポジトリを汚さないように、OSの一時ディレクトリに自己完結型のHTMLファイルを書き出します。環境変数 `$TMPDIR` から一時ディレクトリを解決し、取得できない場合は `/tmp`（Windowsの場合は `%TEMP%`）を使用し、`<tmpdir>/architecture-review-<タイムスタンプ>.html` に書き出します。作成後、Linuxなら `xdg-open <path>`、macOSなら `open <path>`、Windowsなら `start <path>` を実行してレポートを開き、絶対パスをユーザーに伝えてください。
 
-The report uses **Tailwind via CDN** for layout and styling, and **Mermaid via CDN** for diagrams where a graph/flow/sequence reliably communicates the structure. Mix Mermaid with hand-crafted CSS/SVG visuals — use Mermaid when relationships are graph-shaped (call graphs, dependencies, sequences), and hand-built divs/SVG when you want something more editorial (mass diagrams, cross-sections, collapse animations). Each candidate gets a **before/after visualisation**. Be visual.
+レポートでは、レイアウトとスタイリングに **Tailwind (CDN)** を使用し、構造を明確に伝えるために **Mermaid (CDN)** を使用してグラフ/フロー/シーケンス図を描画します。Mermaidと手作りのCSS/SVGビジュアルを組み合わせてください（依存関係やコールグラフなどグラフ形状の関係にはMermaidを使用し、質量図、断面図、折りたたみアニメーションなどには手作りのdiv/SVGを使用します）。各候補には **Before/After（ビフォー/アフター）の視覚化** を含めてください。視覚的にわかりやすくします。
 
-For each candidate, the same template as before, but rendered as a card:
+各候補は、以下の項目を含むカードとしてレンダリングします：
 
-- **Files** — which files/modules are involved
-- **Problem** — why the current architecture is causing friction
-- **Solution** — plain English description of what would change
-- **Benefits** — explained in terms of locality and leverage, and how tests would improve
-- **Before / After diagram** — side-by-side, custom-drawn, illustrating the shallowness and the deepening
-- **Recommendation strength** — one of `Strong`, `Worth exploring`, `Speculative`, rendered as a badge
+- **ファイル (Files)** — 関連するファイル/モジュール
+- **問題点 (Problem)** — 現在のアーキテクチャが摩擦を引き起こしている理由
+- **解決策 (Solution)** — 変更内容の平易な日本語による説明
+- **メリット (Benefits)** — ローカリティとレバレッジの観点、およびテストがどのように改善されるかについての説明
+- **Before / After 構成図** — 浅い状態と深い状態を示す、並列して描画された構成図
+- **推奨度 (Recommendation strength)** — `Strong`（強く推奨）、`Worth exploring`（検討の価値あり）、`Speculative`（推測的）のいずれかをバッジで表示
 
-End the report with a **Top recommendation** section: which candidate you'd tackle first and why.
+レポートの最後には、**最優先の推奨事項 (Top recommendation)** セクションを設け、どの候補から着手すべきかとその理由を記載します。
 
-**Use CONTEXT.md vocabulary for the domain, and [LANGUAGE.md](LANGUAGE.md) vocabulary for the architecture.** If `CONTEXT.md` defines "Order," talk about "the Order intake module" — not "the FooBarHandler," and not "the Order service."
+**ドメインの用語には CONTEXT.md の語彙を、アーキテクチャの用語には [LANGUAGE.md](LANGUAGE.md) の語彙を使用してください。** `CONTEXT.md` が「Order（注文）」を定義しているなら、「Orderの受付モジュール」のように表現し、「FooBarHandler」や「Orderサービス」とは呼ばないでください。
 
-**ADR conflicts**: if a candidate contradicts an existing ADR, only surface it when the friction is real enough to warrant revisiting the ADR. Mark it clearly in the card (e.g. a warning callout: _"contradicts ADR-0007 — but worth reopening because…"_). Don't list every theoretical refactor an ADR forbids.
+**ADRとの競合**: 提案候補が既存のADRと矛盾する場合は、その摩擦が十分に大きく、ADRを再検討する価値がある場合にのみ提示してください。カード内にその旨を明記します（例: 警告表示：_「ADR-0007と矛盾しますが、〜の理由により再検討の価値があります」_）。ADRが禁止しているすべての理論的リファクタリングをリストアップしないでください。
 
-See [HTML-REPORT.md](HTML-REPORT.md) for the full HTML scaffold, diagram patterns, and styling guidance.
+詳細なHTMLの骨組み、図のパターン、スタイリングガイドについては、[HTML-REPORT.md](HTML-REPORT.md) を参照してください。
 
-Do NOT propose interfaces yet. After the file is written, ask the user: "Which of these would you like to explore?"
+この段階ではまだインターフェースの提案は行わないでください。ファイルを書き出した後、ユーザーに「どれについて詳しく検討したいですか？」と尋ねます。
 
-### 3. Grilling loop
+### 3. グリル（面談）ループ
 
-Once the user picks a candidate, drop into a grilling conversation. Walk the design tree with them — constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
+ユーザーが候補を選択したら、グリリングダイアログに進みます。制約、依存関係、深められたモジュールの形状、シームの背後に隠されるもの、残すべきテストなど、設計ツリーをユーザーと一緒にたどります。
 
-Side effects happen inline as decisions crystallize:
+決定が固まるにつれて、以下の副次効果がインラインで発生します：
 
-- **Naming a deepened module after a concept not in `CONTEXT.md`?** Add the term to `CONTEXT.md` — same discipline as `/grill-with-docs` (see [CONTEXT-FORMAT.md](../grill-with-docs/CONTEXT-FORMAT.md)). Create the file lazily if it doesn't exist.
-- **Sharpening a fuzzy term during the conversation?** Update `CONTEXT.md` right there.
-- **User rejects the candidate with a load-bearing reason?** Offer an ADR, framed as: _"Want me to record this as an ADR so future architecture reviews don't re-suggest it?"_ Only offer when the reason would actually be needed by a future explorer to avoid re-suggesting the same thing — skip ephemeral reasons ("not worth it right now") and self-evident ones. See [ADR-FORMAT.md](../grill-with-docs/ADR-FORMAT.md).
-- **Want to explore alternative interfaces for the deepened module?** See [INTERFACE-DESIGN.md](INTERFACE-DESIGN.md).
+- **ドメイン用語集（CONTEXT.md）にない概念に基づいて深められたモジュールを命名する場合**: その用語を `CONTEXT.md` に追加します（`/grill-with-docs` と同じ手順で行います。[CONTEXT-FORMAT.md](../grill-with-docs/CONTEXT-FORMAT.md) を参照）。ファイルが存在しない場合は遅延作成します。
+- **会話中に曖昧な用語が明確化された場合**: その場で `CONTEXT.md` を更新します。
+- **ユーザーが重要な理由に基づいて候補を却下した場合**: ADRの記録を提案します：_「将来のアーキテクチャレビューで同じ提案が繰り返されないように、これをADRとして記録しておきますか？」_ 将来の探索者が同じ提案を繰り返すのを防ぐために必要な理由である場合のみ提案し、一時的な理由（「今はコストが見合わない」など）や自明な理由はスキップします。[ADR-FORMAT.md](../grill-with-docs/ADR-FORMAT.md) を参照。
+- **深められたモジュールの代替インターフェースを検討したい場合**: [INTERFACE-DESIGN.md](INTERFACE-DESIGN.md) を参照してください。
+
+**重要**: レポートの内容、質問、ドキュメント of 更新、ユーザーへの提案など、すべての対話は必ず日本語で行ってください。

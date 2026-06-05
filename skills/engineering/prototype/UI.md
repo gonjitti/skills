@@ -1,64 +1,64 @@
-# UI Prototype
+# UI Prototype (UIプロトタイプ)
 
-Generate **several radically different UI variations** on a single route, switchable from a floating bottom bar. The user flips between variants in the browser, picks one (or steals bits from each), then throws the rest away.
+画面下部のフローティングバーで切り替え可能な **「構造のまったく異なる複数のUIパターン」** を単一のルート上に生成します。ユーザーはブラウザ上でこれらのパターンを切り替えて比較し、いずれかを選択するか、あるいはそれぞれの良い部分を組み合わせて採用し、残りのコードは破棄します。
 
-If the question is about logic/state rather than what something looks like — wrong branch. Use [LOGIC.md](LOGIC.md).
+解決したい問いが、見た目ではなくロジックや状態に関するものである場合は、このブランチは不適切です。[LOGIC.md](LOGIC.md) に進んでください。
 
-## When this is the right shape
+## この形状が適しているケース
 
-- "What should this page look like?"
-- "I want to see a few options for this dashboard before committing."
-- "Try a different layout for the settings screen."
-- Any time the user would otherwise spend a day picking between three vague mockups in their head.
+- 「このページはどのような見た目（レイアウト）であるべきか？」
+- 「本実装を行う前に、このダッシュボードのいくつかのデザイン案をブラウザで比較したい。」
+- 「設定画面の異なるレイアウト案を試してみたい。」
+- その他、頭の中の曖昧な3つのモックアップを比較するために丸一日費やしてしまいそうなすべてのケース。
 
-## Two sub-shapes — strongly prefer sub-shape A
+## 2つのサブ形状 — 原則として「サブ形状A」を選択してください
 
-A UI prototype is much easier to judge when it's **butting up against the rest of the app** — real header, real sidebar, real data, real density. A throwaway route on its own is a vacuum: every variant looks fine in isolation. Default to sub-shape A whenever there's a plausible existing page to host the variants. Only reach for sub-shape B if the prototype genuinely has no nearby home.
+UIプロトタイプは、**アプリの他の部分（実際のヘッダー、実際のサイドバー、実際のデータ、実際の表示密度）と接している状態** で評価する方が、はるかに的確な判断を下せます。独立した空のページ（ルート）にプロトタイプをぽつんと配置すると、各バリアントが単体で綺麗に見えてしまい、適切な比較ができません。バリアントを配置できる既存のページが少しでもある場合は、原則として「サブ形状A」を選択してください。「サブ形状B」を選択するのは、プロトタイプの配置先となる既存ページが全く存在しない場合に限ります。
 
-### Sub-shape A — adjustment to an existing page (preferred)
+### サブ形状A — 既存ページへの組み込み（推奨）
 
-The route already exists. Variants are rendered **on the same route**, gated by a `?variant=` URL search param. The existing data fetching, params, and auth all stay — only the rendering swaps. This is the default; pick it unless there's a specific reason not to.
+既存のルート（URL）をそのまま使用します。バリアントは **同じルート上でレンダリング** され、`?variant=` URL検索パラメータ（クエリパラメータ）によって切り替えます。既存のデータ取得処理、URLパラメータ、認証などはそのまま残し、レンダリングするサブツリー（コンポーネント）のみを切り替えます。これがデフォルトの選択肢です。特別な理由がない限り、こちらを選択してください。
 
-If the prototype is for something that doesn't yet have a page but *would naturally live inside one* (a new section of the dashboard, a new card on the settings screen, a new step in an existing flow) — that's still sub-shape A. Mount the variants inside the host page.
+作成しようとしている機能のページがまだ存在しない場合でも、*それが将来的に既存のどこかのページに内包されるものである場合*（例: ダッシュボードの新しいセクション、設定画面の新しいカード、既存フローの新しいステップなど）は、サブ形状Aに該当します。親となる既存ページにバリアントをマウントしてください。
 
-### Sub-shape B — a new page (last resort)
+### サブ形状B — 新しいページの作成（最終手段）
 
-Only use this when the thing being prototyped genuinely has no existing page to live inside — e.g. an entirely new top-level surface, or a flow that can't be embedded anywhere sensible.
+プロトタイプ対象の機能が、既存のどのページにも属さない場合（例: 全く新しいトップレベルの画面、どこにも埋め込めない独立したフローなど）にのみ使用します。
 
-Create a **throwaway route** following whatever routing convention the project already uses — don't invent a new top-level structure. Name it so it's obviously a prototype (e.g. include the word `prototype` in the path or filename). Same `?variant=` pattern.
+プロジェクトが採用しているルーティング規則に従い、**使い捨てのルート** を作成します（不要な新しいトップレベル構造を作らないこと）。ファイル名やパスに `prototype` という単語を含め、プロトタイプであることが一目でわかるように命名します。切り替えは同じく `?variant=` パターンを使用します。
 
-Before committing to sub-shape B, sanity-check: is there really no existing page this could be embedded in? An empty route hides design problems that a populated one would expose.
+サブ形状Bに進む前に、「本当にこの機能を埋め込める既存のページはないか？」を再確認してください。空のルートで検証すると、デザイン上の課題（情報密度や周囲との整合性など）を見落としやすくなります。
 
-In both sub-shapes the floating bottom bar is identical.
+どちらのサブ形状であっても、画面下部に表示するフローティング切り替えバーの仕様は共通です。
 
-## Process
+## プロセス
 
-### 1. State the question and pick N
+### 1. 問いを定義し、パターン数（N）を決める
 
-Default to **3 variants**. More than 5 stops being radically different and starts being noise — cap there.
+デフォルトでは **3つのバリアント** を作成します。5つを超えると「根本的な違い」がなくなり、単なるノイズになるため、最大5つまでに制限します。
 
-Write down the plan in one line, in the prototype's location or a top-of-file comment:
+プロトタイプを配置した場所、またはファイルの先頭コメントに、以下のように計画を1行で記述します：
 
-> "Three variants of the settings page, switchable via `?variant=`, on the existing `/settings` route."
+> 「設定ページの3つのバリアント。既存の `/settings` ルート上で `?variant=` により切り替え可能。」
 
-This works whether the user is here to push back or not.
+これにより、ユーザーがその場にいなくても意図が明確に伝わります。
 
-### 2. Generate radically different variants
+### 2. 構造のまったく異なるバリアントを生成する
 
-Draft each variant. Hold each one to:
+各バリアントを実装します。以下の制約に従ってください：
 
-- The page's purpose and the data it has access to.
-- The project's component library / styling system (TailwindCSS, shadcn, MUI, plain CSS, whatever).
-- A clear exported component name, e.g. `VariantA`, `VariantB`, `VariantC`.
+- ページの目的およびアクセス可能なデータに合致させること。
+- プロジェクトで使われているコンポーネントライブラリやスタイリングシステム（TailwindCSS、shadcn、MUI、素のCSSなど）に従うこと。
+- `VariantA`、`VariantB`、`VariantC` のように、コンポーネント名を明確にエクスポートすること。
 
-Variants must be **structurally different** — different layout, different information hierarchy, different primary affordance, not just different colours. Three slightly-tweaked card grids isn't a UI prototype, it's wallpaper. If two drafts come out too similar, redo one with explicit "do not use a card grid" guidance.
+バリアントは **構造的に異なっている** 必要があります。レイアウト、情報の優先順位、最も目立たせる操作要素（プライマリアフォーダンス）などが異なっている必要があり、単に配色（色味）が違うだけではいけません。細部を少し変えただけの3つのカードグリッドはUIプロトタイプではなく、単なる「壁紙のバリエーション」です。ドラフトした2つのバリアントが似すぎてしまった場合は、「カードグリッドは使わない」などの制約を自分に課して片方を描き直してください。
 
-### 3. Wire them together
+### 3. バリアントと切り替え器を接続する
 
-Create a single switcher component on the route:
+ルート（親コンポーネント）に単一の切り替えロジックを作成します：
 
 ```tsx
-// pseudo-code — adapt to the project's framework
+// 擬似コード — プロジェクトのフレームワークに合わせて調整してください
 const variant = searchParams.get('variant') ?? 'A';
 return (
   <>
@@ -70,43 +70,43 @@ return (
 );
 ```
 
-For sub-shape A (existing page): keep all the existing data fetching above the switcher; only the rendered subtree changes per variant.
+サブ形状A（既存ページ）の場合：データ取得処理などは切り替えロジックの上部に配置し、レンダリングするサブツリーのみをバリアントごとに切り替えます。
 
-For sub-shape B (new page): the throwaway route under `/prototype/<name>` mounts the same switcher.
+サブ形状B（新規ページ）の場合：`/prototype/<名前>` に作成した使い捨てルートで、上記の切り替えロジックをマウントします。
 
-### 4. Build the floating switcher
+### 4. フローティング切り替えバーの構築
 
-A small fixed-position bar at the bottom-centre of the screen with three pieces:
+画面下部の中央に固定配置（`fixed`）する小さなメニューバーです。以下の3つの要素で構成されます：
 
-- **Left arrow** — cycles to the previous variant (wraps around).
-- **Variant label** — shows the current variant key and, if the variant exports a name, that name too. e.g. `B — Sidebar layout`.
-- **Right arrow** — cycles forward (wraps around).
+- **左矢印** — 前のバリアントに切り替えます（ループします）。
+- **バリアントのラベル** — 現在のバリアントのキー（A, B, C...）と、バリアントが名前を持っている場合はその名前を表示します（例: `B — サイドバーレイアウト`）。
+- **右矢印** — 次のバリアントに切り替えます（ループします）。
 
-Behaviour:
+動作仕様：
 
-- Clicking an arrow updates the URL search param (use the framework's router — `router.replace` on Next, `navigate` on React Router, etc) so the variant is shareable and reload-stable.
-- Keyboard: `←` and `→` arrow keys also cycle. Don't intercept arrow keys when an `<input>`, `<textarea>`, or `[contenteditable]` is focused.
-- Visually distinct from the page (e.g. high-contrast pill, subtle shadow) so it's obviously not part of the design being evaluated.
-- Hidden in production builds — gate on `process.env.NODE_ENV !== 'production'` or an equivalent check, so a stray prototype merge can't ship the bar to users.
+- 矢印をクリックすると、URLの検索パラメータ（クエリパラメータ）が更新されます。URLを共有可能にし、リロードしても状態が維持されるように、フレームワークのルーター（Nextの `router.replace`、React Routerの `navigate` など）を使用してください。
+- キーボード操作：左右の矢印キー（`←`、`→`）でも切り替えできるようにします。ただし、ユーザーが `<input>`、`<textarea>`、または `contenteditable` 属性を持つ要素にフォーカスしているときは、矢印キーの操作を奪わない（キーイベントをインターセプトしない）ように制御してください。
+- 評価対象のデザインと混同されないよう、デザイン的に明確に区別できるビジュアル（高コントラストのピル型、浮き上がるようなドロップシャドウなど）にします。
+- 本番ビルドでは非表示にします。`process.env.NODE_ENV !== 'production'` などの環境変数チェックでゲートを設け、万が一本番環境にマージされても一般ユーザーの画面に表示されないようにしてください。
 
-Put the switcher in a single shared component so both sub-shapes can reuse it. Locate it wherever shared UI lives in the project.
+この切り替えバーは単一の共通コンポーネントとして作成し、プロジェクト内の共通UI置き場に配置して、どちらのサブ形状でも再利用できるようにします。
 
-### 5. Hand it over
+### 5. ユーザーへの引き渡し
 
-Surface the URL (and the `?variant=` keys). The user will flip through whenever they get to it. The interesting feedback is usually **"I want the header from B with the sidebar from C"** — that's the actual design they want.
+URL（および `?variant=` に指定可能なキー）をユーザーに伝えます。ユーザーは自分のタイミングでブラウザで表示して切り替えます。よくある有益なフィードバックは、**「BのヘッダーとCのサイドバーを組み合わせたい」** といったものです。これこそが、ユーザーが本当に求めていたデザインです。
 
-### 6. Capture the answer and clean up
+### 6. 結論の記録とクリーンアップ
 
-Once a variant has won, write down which one and why (commit message, ADR, issue, or a `NOTES.md` next to the prototype if running AFK and the user hasn't responded yet). Then:
+採用するバリアントが決定したら、どれをなぜ採用したかを記録します（コミットメッセージ、ADR、イシュー、または不在時にユーザーの回答を待つ場合はプロトタイプの隣の `NOTES.md` に記載）。その後、速やかに以下のクリーンアップを行います：
 
-- **Sub-shape A** — delete the losing variants and the switcher; fold the winner into the existing page.
-- **Sub-shape B** — promote the winning variant to a real route, delete the throwaway route and the switcher.
+- **サブ形状A** — 採用されなかったバリアントのコードと切り替え器（Switcher）を削除し、採用されたバリアントのコードを既存のページに統合（インライン化）します。
+- **サブ形状B** — 採用されたバリアントを本番用のルートとして昇格させ、使い捨てルートと切り替え器を削除します。
 
-Don't leave variant components or the switcher lying around. They rot fast and confuse the next reader.
+使い終わったバリアントコンポーネントや切り替え器のコードを放置しないでください。コードベースが煩雑になり、将来のコード読者を混乱させます。
 
-## Anti-patterns
+## アンチパターン
 
-- **Variants that differ only in colour or copy.** That's a tweak, not a prototype. Real variants disagree about structure.
-- **Sharing too much code between variants.** A shared `<Header>` is fine; a shared `<Layout>` defeats the point. Each variant should be free to throw out the layout.
-- **Wiring variants to real mutations.** Read-only prototypes are fine. If a variant needs to mutate, point it at a stub — the question is "what should this look like", not "does the backend work".
-- **Promoting the prototype directly to production.** The variant code was written under prototype constraints (no tests, minimal error handling). Rewrite it properly when you fold it in.
+- **テキスト（文言）や色だけが異なるバリアント。** それは微調整（Tweak）であり、プロトタイプではありません。本物のバリアントは、構造の面で互いに異なっている必要があります。
+- **バリアント間でコードを共通化しすぎること。** 共通の `<Header>` を使うのは問題ありませんが、共通の `<Layout>` を使ってしまうと、レイアウト自体の比較ができなくなります。各バリアントは、レイアウトから白紙で描き直せる程度の独立性を持たせてください。
+- **バリアントから実際のデータ変更（Mutations）を実行させること。** 閲覧（Read）のみのプロトタイプで十分です。もし状態の変更が必要な場合はモック（スタブ）を呼び出すようにしてください。目的は「どう見えるべきか」の検証であり、「バックエンドが正しく動くか」ではありません。
+- **プロトタイプコードをそのまま本番コードに昇格させること。** プロトタイプコードは、テストなし、最小限のエラー処理といったプロトタイプ用の制約下で書かれたものです。本番コードに組み込む際は、適切な設計と品質で書き直してください。

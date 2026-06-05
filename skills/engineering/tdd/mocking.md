@@ -1,59 +1,59 @@
-# When to Mock
+# モックを使用するタイミング
 
-Mock at **system boundaries** only:
+モック化（Mocking）は、**システムの境界（system boundaries）** でのみ行ってください：
 
-- External APIs (payment, email, etc.)
-- Databases (sometimes - prefer test DB)
-- Time/randomness
-- File system (sometimes)
+- 外部API（決済、メール送信など）
+- データベース（場合による — テスト用のデータベースを用意する方を優先します）
+- 時間 / 乱数
+- ファイルシステム（場合による）
 
-Don't mock:
+以下はモック化しないでください：
 
-- Your own classes/modules
-- Internal collaborators
-- Anything you control
+- あなた自身が作成したクラス / モジュール
+- 内部の連携モジュール（internal collaborators）
+- あなた自身がコントロール（編集）できるすべてのもの
 
-## Designing for Mockability
+## モックしやすさを考慮した設計 (Designing for Mockability)
 
-At system boundaries, design interfaces that are easy to mock:
+システムの境界では、モック化しやすいインターフェースを設計します：
 
-**1. Use dependency injection**
+**1. 依存性注入 (Dependency Injection) を使用する**
 
-Pass external dependencies in rather than creating them internally:
+外部の依存関係を内部でインスタンス化するのではなく、外部から渡すようにします：
 
 ```typescript
-// Easy to mock
+// モックしやすい例
 function processPayment(order, paymentClient) {
   return paymentClient.charge(order.total);
 }
 
-// Hard to mock
+// モックしにくい例
 function processPayment(order) {
   const client = new StripeClient(process.env.STRIPE_KEY);
   return client.charge(order.total);
 }
 ```
 
-**2. Prefer SDK-style interfaces over generic fetchers**
+**2. 汎用的なデータ取得関数ではなく、SDKスタイルのインターフェースを優先する**
 
-Create specific functions for each external operation instead of one generic function with conditional logic:
+条件分岐ロジックを含む1つの汎用的な関数を作る代わりに、外部操作ごとに専用の関数を作成します：
 
 ```typescript
-// GOOD: Each function is independently mockable
+// 良い例: 各関数が個別にモック可能です
 const api = {
   getUser: (id) => fetch(`/users/${id}`),
   getOrders: (userId) => fetch(`/users/${userId}/orders`),
   createOrder: (data) => fetch('/orders', { method: 'POST', body: data }),
 };
 
-// BAD: Mocking requires conditional logic inside the mock
+// 悪い例: モックの内部で条件分岐ロジックを書く必要があります
 const api = {
   fetch: (endpoint, options) => fetch(endpoint, options),
 };
 ```
 
-The SDK approach means:
-- Each mock returns one specific shape
-- No conditional logic in test setup
-- Easier to see which endpoints a test exercises
-- Type safety per endpoint
+SDKアプローチの利点：
+- 各モックが特定のデータ構造を1つだけ返せばよくなります
+- テストのセットアップで条件分岐ロジックを書く必要がなくなります
+- テストがどのエンドポイントを実行しているかが明確になります
+- エンドポイントごと型安全性が確保されます

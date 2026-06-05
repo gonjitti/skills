@@ -1,27 +1,27 @@
 ---
 name: grill-with-docs
-description: Grilling session that challenges your plan against the existing domain model, sharpens terminology, and updates documentation (CONTEXT.md, ADRs) inline as decisions crystallise. Use when user wants to stress-test a plan against their project's language and documented decisions.
+description: 既存 of ドメインモデルに照らし合わせて計画を検証し、用語を明確化し、意思決定が固まるにつれてドキュメント（CONTEXT.md、ADRs）をインラインで更新するグリル（面談）セッションです。ユーザーがプロジェクトの用語や記録された意思決定に照らし合わせて計画をストレステストしたい場合に使用します。
 ---
 
 <what-to-do>
 
-Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
+共通の理解に達するまで、この計画のあらゆる側面について容赦なく私にインタビューしてください。設計ツリーの各分岐を下りながら、決定間の依存関係を1つずつ解決してください。質問ごとに、推奨される回答を提示してください。
 
-Ask the questions one at a time, waiting for feedback on each question before continuing.
+質問は1つずつ行い、次の質問に進む前に各質問に対するフィードバックを待ってください。
 
-If a question can be answered by exploring the codebase, explore the codebase instead.
+コードベースを探索することで解決できる質問である場合は、質問する代わりにコードベースを探索してください。
 
 </what-to-do>
 
 <supporting-info>
 
-## Domain awareness
+## ドメインの把握
 
-During codebase exploration, also look for existing documentation:
+コードベースを探索する際、既存のドキュメントも探してください：
 
-### File structure
+### ファイル構造
 
-Most repos have a single context:
+ほとんどのリポジトリは単一のコンテキストを持ちます：
 
 ```
 /
@@ -33,56 +33,58 @@ Most repos have a single context:
 └── src/
 ```
 
-If a `CONTEXT-MAP.md` exists at the root, the repo has multiple contexts. The map points to where each one lives:
+ルートに `CONTEXT-MAP.md` が存在する場合、リポジトリは複数のコンテキストを持っています。マップはそれぞれのコンテキストがどこにあるかを指し示します：
 
 ```
 /
 ├── CONTEXT-MAP.md
 ├── docs/
-│   └── adr/                          ← system-wide decisions
+│   └── adr/                          ← システム全体の決定事項
 ├── src/
 │   ├── ordering/
 │   │   ├── CONTEXT.md
-│   │   └── docs/adr/                 ← context-specific decisions
+│   │   └── docs/adr/                 ← コンテキスト固有の決定事項
 │   └── billing/
 │       ├── CONTEXT.md
 │       └── docs/adr/
 ```
 
-Create files lazily — only when you have something to write. If no `CONTEXT.md` exists, create one when the first term is resolved. If no `docs/adr/` exists, create it when the first ADR is needed.
+ファイルは遅延して（実際に書き込む内容がある場合にのみ）作成してください。`CONTEXT.md` が存在しない場合は、最初の用語が決定したときに作成します。`docs/adr/` が存在しない場合は、最初のADRが必要になったときに作成します。
 
-## During the session
+## セッション中のルール
 
-### Challenge against the glossary
+### 用語集（グロッサリー）との照合
 
-When the user uses a term that conflicts with the existing language in `CONTEXT.md`, call it out immediately. "Your glossary defines 'cancellation' as X, but you seem to mean Y — which is it?"
+ユーザーが `CONTEXT.md` にある既存の用語と矛盾する用語を使用した場合、すぐに指摘してください。「用語集では『cancellation（キャンセル）』をXと定義していますが、Yの意味で使っているようです。どちらが正しいですか？」
 
-### Sharpen fuzzy language
+### 曖昧な表現の明確化
 
-When the user uses vague or overloaded terms, propose a precise canonical term. "You're saying 'account' — do you mean the Customer or the User? Those are different things."
+ユーザーが曖昧な用語や複数の意味を持つ用語を使用した場合、正確な標準用語を提案してください。「『アカウント』とおっしゃっていますが、顧客（Customer）とユーザー（User）のどちらを指していますか？これらは別の概念です。」
 
-### Discuss concrete scenarios
+### 具体的なシナリオの検討
 
-When domain relationships are being discussed, stress-test them with specific scenarios. Invent scenarios that probe edge cases and force the user to be precise about the boundaries between concepts.
+ドメインの関係性について議論する際は、具体的なシナリオを用いてストレステストを行ってください。エッジケースを探索するシナリオを考案し、概念間の境界線についてユーザーに正確な定義を求めてください。
 
-### Cross-reference with code
+### コードとのクロスリファレンス
 
-When the user states how something works, check whether the code agrees. If you find a contradiction, surface it: "Your code cancels entire Orders, but you just said partial cancellation is possible — which is right?"
+ユーザーが「〜はこういう仕組みで動作する」と述べた場合、コードがその通りになっているか確認してください。矛盾を見つけたら提示してください。「コードでは注文（Order）全体をキャンセルするようになっていますが、先ほど部分キャンセルが可能だとおっしゃいました。どちらが正しい仕様ですか？」
 
-### Update CONTEXT.md inline
+### CONTEXT.md のインライン更新
 
-When a term is resolved, update `CONTEXT.md` right there. Don't batch these up — capture them as they happen. Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).
+用語が決定したら、その場で `CONTEXT.md` を更新してください。まとめて後から更新するのではなく、決定する都度キャプチャしてください。フォーマットは [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md) に従ってください。
 
-`CONTEXT.md` should be totally devoid of implementation details. Do not treat `CONTEXT.md` as a spec, a scratch pad, or a repository for implementation decisions. It is a glossary and nothing else.
+`CONTEXT.md` には実装の詳細を一切含めないでください。`CONTEXT.md` を仕様書やメモ帳、あるいは実装に関する決定事項の保存場所として扱わないでください。これは純粋に用語集（グロッサリー）です。
 
-### Offer ADRs sparingly
+### ADRの提案は慎重に行う
 
-Only offer to create an ADR when all three are true:
+ADR（アーキテクチャ意思決定記録）の作成を提案するのは、以下の3つの条件がすべて満たされる場合に限ります：
 
-1. **Hard to reverse** — the cost of changing your mind later is meaningful
-2. **Surprising without context** — a future reader will wonder "why did they do it this way?"
-3. **The result of a real trade-off** — there were genuine alternatives and you picked one for specific reasons
+1. **後戻りが困難** — 後で決定を変更する場合のコストが小さくないこと
+2. **文脈がないと不可解** — 将来のコード読者が「なぜわざわざこんな方法を取ったのか？」と疑問に思うこと
+3. **トレードオフの結果** — 複数の選択肢が存在し、特定の理由からそのうちの1つを選択したこと
 
-If any of the three is missing, skip the ADR. Use the format in [ADR-FORMAT.md](./ADR-FORMAT.md).
+これら3つのうち1つでも欠けている場合は、ADRの作成をスキップしてください。フォーマットは [ADR-FORMAT.md](./ADR-FORMAT.md) に従ってください。
+
+**重要**: 質問、ドキュメントの更新、ユーザーへの提案など、すべての対話は必ず日本語で行ってください。
 
 </supporting-info>

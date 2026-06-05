@@ -1,15 +1,17 @@
 ---
 name: handoff
-description: Compact the current conversation into a handoff document for another agent to pick up.
-argument-hint: "What will the next session be used for?"
+description: 現在の会話内容を要約した引き継ぎ用ドキュメントを作成し、別のエージェントが作業を引き継げるようにします。
+argument-hint: "次のセッションの主な目的は何ですか？"
 ---
 
-Write a handoff document summarising the current conversation so a fresh agent can continue the work. Save to the temporary directory of the user's OS - not the current workspace.
+現在の会話を要約した引き継ぎ（handoff）ドキュメントを作成し、新しいエージェントがスムーズに作業を継続できるようにします。現在のワークスペースではなく、ユーザーのOSの一時ディレクトリ（`/tmp` 等）に保存してください。
 
-Include a "suggested skills" section in the document, which suggests skills that the agent should invoke.
+ドキュメント内に、次のエージェントが呼び出すべき推奨スキルを提案する「推奨スキル」セクションを含めてください。
 
-Do not duplicate content already captured in other artifacts (PRDs, plans, ADRs, issues, commits, diffs). Reference them by path or URL instead.
+他のアーティファクト（PRD、計画書、ADRs、issues、コミット、diffなど）にすでに記録されている内容を重複して記載しないでください。代わりにパスやURLでそれらを参照してください。
 
-Redact any sensitive information, such as API keys, passwords, or personally identifiable information.
+APIキー、パスワード、個人を特定できる情報などの機密情報はマスキング（赤入れ・削除）してください。
 
-If the user passed arguments, treat them as a description of what the next session will focus on and tailor the doc accordingly.
+ユーザーが引数を渡した場合は、それを次のセッションで注力する内容の説明として扱い、それに応じてドキュメントの内容を調整してください。
+
+**重要**: 作成する引き継ぎドキュメントおよびユーザーへの応答はすべて日本語で行ってください。

@@ -1,47 +1,47 @@
-# ADR Format
+# ADR 形式
 
-ADRs live in `docs/adr/` and use sequential numbering: `0001-slug.md`, `0002-slug.md`, etc.
+ADR（アーキテクチャ意思決定記録）は `docs/adr/` に保存され、`0001-slug.md`、`0002-slug.md` のように連番のファイル名を使用します。
 
-Create the `docs/adr/` directory lazily — only when the first ADR is needed.
+`docs/adr/` ディレクトリは遅延して（最初のADRが必要になったときにのみ）作成してください。
 
-## Template
+## テンプレート
 
 ```md
-# {Short title of the decision}
+# {意思決定の短いタイトル}
 
-{1-3 sentences: what's the context, what did we decide, and why.}
+{1〜3文：どのような文脈で、何を決定し、なぜそうしたのか。}
 ```
 
-That's it. An ADR can be a single paragraph. The value is in recording *that* a decision was made and *why* — not in filling out sections.
+これだけです。ADRは1つの段落だけで構成されていても構いません。価値があるのは、意思決定が行われたこととその「理由」を記録することであり、決まったセクションを埋めることではありません。
 
-## Optional sections
+## 任意のセクション
 
-Only include these when they add genuine value. Most ADRs won't need them.
+これらは本当に価値がある場合にのみ含めてください。ほとんどのADRでは不要です。
 
-- **Status** frontmatter (`proposed | accepted | deprecated | superseded by ADR-NNNN`) — useful when decisions are revisited
-- **Considered Options** — only when the rejected alternatives are worth remembering
-- **Consequences** — only when non-obvious downstream effects need to be called out
+- **Status（ステータス）** のフロントマター (`proposed | accepted | deprecated | superseded by ADR-NNNN`) — 意思決定を再検討する際に便利です。
+- **Considered Options（検討した選択肢）** — 却下された代替案を記憶にとどめておく価値がある場合のみ。
+- **Consequences（結果・影響）** — 明らかではない下流への影響を明記する必要がある場合のみ。
 
-## Numbering
+## 番号付け
 
-Scan `docs/adr/` for the highest existing number and increment by one.
+`docs/adr/` 内をスキャンして既存の最大の番号を見つけ、それに1を加えます。
 
-## When to offer an ADR
+## ADRを作成する基準
 
-All three of these must be true:
+以下の3つがすべて満たされている必要があります：
 
-1. **Hard to reverse** — the cost of changing your mind later is meaningful
-2. **Surprising without context** — a future reader will look at the code and wonder "why on earth did they do it this way?"
-3. **The result of a real trade-off** — there were genuine alternatives and you picked one for specific reasons
+1. **後戻りが困難** — 後で考えを変えた場合のコストが小さくないこと
+2. **文脈がないと不可解** — 将来の読者がコードを見て「一体なぜこんな方法を取ったのか？」と疑問に思うこと
+3. **トレードオフの結果** — 複数の選択肢が存在し、特定の理由からそのうちの1つを選択したこと
 
-If a decision is easy to reverse, skip it — you'll just reverse it. If it's not surprising, nobody will wonder why. If there was no real alternative, there's nothing to record beyond "we did the obvious thing."
+変更が容易な決定であれば、記録は不要です（単に変更すればよいため）。不思議な実装でなければ、誰も理由を疑いません。現実的な選択肢が他になかったのであれば、「当然のことをした」こと以外に記録すべき情報はありません。
 
-### What qualifies
+### 対象となる決定の例
 
-- **Architectural shape.** "We're using a monorepo." "The write model is event-sourced, the read model is projected into Postgres."
-- **Integration patterns between contexts.** "Ordering and Billing communicate via domain events, not synchronous HTTP."
-- **Technology choices that carry lock-in.** Database, message bus, auth provider, deployment target. Not every library — just the ones that would take a quarter to swap out.
-- **Boundary and scope decisions.** "Customer data is owned by the Customer context; other contexts reference it by ID only." The explicit no-s are as valuable as the yes-s.
-- **Deliberate deviations from the obvious path.** "We're using manual SQL instead of an ORM because X." Anything where a reasonable reader would assume the opposite. These stop the next engineer from "fixing" something that was deliberate.
-- **Constraints not visible in the code.** "We can't use AWS because of compliance requirements." "Response times must be under 200ms because of the partner API contract."
-- **Rejected alternatives when the rejection is non-obvious.** If you considered GraphQL and picked REST for subtle reasons, record it — otherwise someone will suggest GraphQL again in six months.
+- **アーキテクチャの形状。** 「モノレポを使用する。」「書き込みモデルはイベントソーシングとし、読み込みモデルはPostgreSQLに投影する。」
+- **コンテキスト間の統合パターン。** 「OrderingとBillingは同期HTTPではなく、ドメインイベントを介して通信する。」
+- **ロックインを伴う技術選定。** データベース、メッセージバス、認証プロバイダ、デプロイ先など。すべてのライブラリではなく、入れ替えるのに数ヶ月かかるようなもの。
+- **境界とスコープの決定。** 「顧客データはCustomerコンテキストが所有し、他のコンテキストはIDでのみ参照する。」明示的な「やらないこと（No）」の記録は、「やること（Yes）」と同じくらい重要です。
+- **意図的にセオリーから逸脱した決定。** 「Xの理由により、ORMではなく手動のSQLを使用する。」良識ある読者が直感と逆のことを想定するようなすべての決定。これにより、次のエンジニアが「意図的に行った設計」を誤って「修正」してしまうのを防げます。
+- **コードには現れない制約。** 「コンプライアンス要件のため、AWSは使用できない。」「パートナーAPIの契約上、レスポンスタイムは200ms未満にする必要がある。」
+- **却下された代替案（却下理由が自明でない場合）。** GraphQLを検討したが、微妙な理由でRESTを選択した場合は、それを記録しておきます。そうしないと、半年後にまた誰かがGraphQLを提案することになります。

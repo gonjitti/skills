@@ -1,74 +1,103 @@
 ---
 name: to-prd
-description: Turn the current conversation context into a PRD and publish it to the project issue tracker. Use when user wants to create a PRD from the current context.
+description: 現在の会話のコンテキストからプロダクト要件定義書（PRD）を作成し、イシュートラッカーに登録します。追加のインタビューは行わず、これまでに議論された内容を合成します。ユーザーが議論をPRDにまとめたい場合、「PRDを作成して」と言った場合、または現在の計画の仕様を文書化したい場合に使用します。
 ---
 
-This skill takes the current conversation context and codebase understanding and produces a PRD. Do NOT interview the user — just synthesize what you already know.
+# To PRD (PRDの作成)
 
-The issue tracker and triage label vocabulary should have been provided to you — run `/setup-matt-pocock-skills` if not.
+現在の会話コンテキストをプロダクト要件定義書（PRD）に変換し、設定されたイシュートラッカーに登録します。
 
-## Process
+イシュートラッカーに登録するすべてのPRDは、必ずこの免責事項から開始する必要があります：
 
-1. Explore the repo to understand the current state of the codebase, if you haven't already. Use the project's domain glossary vocabulary throughout the PRD, and respect any ADRs in the area you're touching.
+```
+> *これはAIによって生成されました。*
+```
 
-2. Sketch out the seams at which you're going to test the feature. Existing seams should be preferred to new ones. Use the highest seam possible. If new seams are needed, propose them at the highest point you can.
+## プロセス
 
-Check with the user that these seams match their expectations.
+### 1. 設定の読み込みと探索
 
-3. Write the PRD using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.
+`docs/agents/` 内の設定を読み込み、イシュートラッカーの場所（GitHub、GitLab、またはローカルの Markdown ファイル）とトリアージ用ラベルを確認します。ファイルが存在しない場合は `/setup-matt-pocock-skills` を実行します。
 
-<prd-template>
+プロジェクトのドメイン用語集（`CONTEXT.md`）を使用してコードベースを探索し、関連領域のADRを確認します。
 
-## Problem Statement
+### 2. PRDのドラフト作成
 
-The problem that the user is facing, from the user's perspective.
+以下のテンプレートを使用してPRDのドラフトを作成します。
 
-## Solution
+ユーザーへの追加インタビューは行わず、これまでの議論の内容を合成してください。詳細が不足している場合は、エンジニアとしての妥当な「仮定」を立て、それを仮定として明記し、ユーザーが確認できるようにフラグを立てます。
 
-The solution to the problem, from the user's perspective.
+**ドメインの用語には CONTEXT.md の語彙を使用してください。** `CONTEXT.md` が「Order（注文）」を定義しているなら、PRDでも「Orderの受付モジュール」のように表現し、「FooBarHandler」などとは呼ばないでください。
 
-## User Stories
+#### PRD テンプレート
 
-A LONG, numbered list of user stories. Each user story should be in the format of:
+```markdown
+# PRD: {機能名}
 
-1. As an <actor>, I want a <feature>, so that <benefit>
+> *これはAIによって生成されました。*
 
-<user-story-example>
-1. As a mobile bank customer, I want to see balance on my accounts, so that I can make better informed decisions about my spending
-</user-story-example>
+## 概要
 
-This list of user stories should be extremely extensive and cover all aspects of the feature.
+ビジネス価値と目標についての1段落のエグゼクティブサマリー。
 
-## Implementation Decisions
+## ドメイン言語
 
-A list of implementation decisions that were made. This can include:
+この機能が触れるドメインの概念（CONTEXT.md から）を明記し、用語集に追加することを提案した新しい用語があれば指摘します。
 
-- The modules that will be built/modified
-- The interfaces of those modules that will be modified
-- Technical clarifications from the developer
-- Architectural decisions
-- Schema changes
-- API contracts
-- Specific interactions
+## 前提条件・仮定 (Assumptions)
 
-Do NOT include specific file paths or code snippets. They may end up being outdated very quickly.
+- ドラフト作成時に立てた技術的・ビジネス的な仮定のリスト
 
-Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it within the relevant decision and note briefly that it came from a prototype. Trim to the decision-rich parts — not a working demo, just the important bits.
+## ユーザー確認が必要な事項 (User Review Required)
 
-## Testing Decisions
+- メンテナの確認が必要な、主要な決定事項、トレードオフ、または不足している詳細情報
 
-A list of testing decisions that were made. Include:
+## 要件 (Requirements)
 
-- A description of what makes a good test (only test external behavior, not implementation details)
-- Which modules will be tested
-- Prior art for the tests (i.e. similar types of tests in the codebase)
+要件をリストアップします。「Must（必須）」、「Should（推奨）」、「Could（任意）」の形式を使用します。
 
-## Out of Scope
+- **Must** 1
+- **Must** 2
+- **Should** 1
+- **Could** 1
 
-A description of the things that are out of scope for this PRD.
+## 対象外 (Out of Scope)
 
-## Further Notes
+- 明示的に対象外（スコープ外）とする事項のリスト
 
-Any further notes about the feature.
+## 主要なインターフェース (Key Interfaces)
 
-</prd-template>
+影響を受けるハイレベルなインターフェースを記述します。例:
+- 新しいエントリポイントのシグネチャ
+- 設定スキーマの再構成案
+
+行番号やファイルパスは記載せず、動作上の契約と型定義に焦点を当ててください。
+
+## 検証計画 (Verification Plan)
+
+### 自動テスト
+- テスト戦略を説明します（例: 有効なチェックアウトの統合テスト、Stripe境界のモックなど）
+
+### 手動検証
+- 人間が検証するために行うべき手順（例: 「開発サーバーを起動し、スクリプトXを使用してWebフックをトリガーし、ディスク上の電子メールのペイロードを確認する」）
+```
+
+### 3. レビュー
+
+ドラフトをユーザーに提示し、登録する前に承認を得ます。
+
+### 4. 公開（登録）
+
+承認されたPRDを設定されたイシュートラッカーに登録します。
+
+GitHub または GitLab を使用する場合：
+- CLI（`gh` または `glab`）を使用してイシューを作成します。
+- タイトルは `PRD: {機能名}` とします。
+- イシューに `needs-triage` ラベル（または `docs/agents/triage-labels.md` で対応する文字列）を適用します。
+
+ローカルの Markdown を使用する場合：
+- ファイル `.scratch/<機能名-スラグ>/PRD.md` を作成します。
+
+登録が完了したら、作成されたイシュー番号またはパスをユーザーに伝えます。
+
+**重要**: 作成するPRDドキュメントおよびユーザーとのすべての対話は日本語で行ってください。

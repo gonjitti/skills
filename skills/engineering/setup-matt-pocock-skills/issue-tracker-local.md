@@ -1,19 +1,19 @@
-# Issue tracker: Local Markdown
+# イシュートラッカー: ローカル Markdown
 
-Issues and PRDs for this repo live as markdown files in `.scratch/`.
+このリポジトリのイシューおよびPRDは、`.scratch/` 内の Markdown ファイルとして管理されます。
 
-## Conventions
+## 操作規則
 
-- One feature per directory: `.scratch/<feature-slug>/`
-- The PRD is `.scratch/<feature-slug>/PRD.md`
-- Implementation issues are `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01`
-- Triage state is recorded as a `Status:` line near the top of each issue file (see `triage-labels.md` for the role strings)
-- Comments and conversation history append to the bottom of the file under a `## Comments` heading
+- 1つの機能（フィーチャー）につき1つのディレクトリ：`.scratch/<機能名-スラグ>/`
+- PRDは `.scratch/<機能名-スラグ>/PRD.md` に配置されます。
+- 実装イシューは `.scratch/<機能名-スラグ>/issues/<NN>-<スラグ>.md` とし、`01` から順に番号を振ります。
+- トリアージ状態は、各イシューファイルの上部付近にある `Status:` 行に記録されます（状態を表す文字列については `triage-labels.md` を参照）。
+- コメントおよび会話履歴は、ファイル下部の `## Comments` 見出しの下に追加されます。
 
-## When a skill says "publish to the issue tracker"
+## スキルが「イシュートラッカーに公開する」と指示した場合
 
-Create a new file under `.scratch/<feature-slug>/` (creating the directory if needed).
+`.scratch/<機能名-スラグ>/` の下に新しいファイルを作成します（必要に応じてディレクトリを作成します）。
 
-## When a skill says "fetch the relevant ticket"
+## スキルが「関連チケットを取得する」と指示した場合
 
-Read the file at the referenced path. The user will normally pass the path or the issue number directly.
+指定されたパスのファイルを読み取ります。通常、ユーザーはパスまたはイシュー番号を直接指定します。

@@ -1,10 +1,10 @@
-# Refactor Candidates
+# リファクタリングの候補
 
-After TDD cycle, look for:
+TDDのサイクルを回した後、以下を探します：
 
-- **Duplication** → Extract function/class
-- **Long methods** → Break into private helpers (keep tests on public interface)
-- **Shallow modules** → Combine or deepen
-- **Feature envy** → Move logic to where data lives
-- **Primitive obsession** → Introduce value objects
-- **Existing code** the new code reveals as problematic
+- **重複** → 関数やクラスへ抽出する
+- **長すぎるメソッド** → 非公開のヘルパー関数に分割する（テストは公開インターフェースに当てたままにする）
+- **浅いモジュール** → 統合するか、または「深さ」を持たせる
+- **機能の横恋慕 (Feature envy)** → ロジックを、データが置かれている場所に移動する
+- **基本データ型への執着 (Primitive obsession)** → 値オブジェクト（Value Objects）を導入する
+- **既存のコード** のうち、新しいコードを追加したことによって問題が浮き彫りになった箇所
